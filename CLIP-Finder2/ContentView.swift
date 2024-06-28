@@ -8,13 +8,35 @@
 import SwiftUI
 import Photos
 
+//struct ContentView: View {
+//    @StateObject private var photoGalleryViewModel = PhotoGalleryViewModel()
+//
+//    var body: some View {
+//        NavigationView {
+//            PhotoGalleryView(assets: photoGalleryViewModel.assets)
+//                .navigationTitle("Photo Gallery")
+//        }
+//        .onAppear {
+//            photoGalleryViewModel.requestPhotoLibraryAccess()
+//        }
+//    }
+//}
+
 struct ContentView: View {
     @StateObject private var photoGalleryViewModel = PhotoGalleryViewModel()
+    @State private var searchText = ""
 
     var body: some View {
         NavigationView {
-            PhotoGalleryView(assets: photoGalleryViewModel.assets)
-                .navigationTitle("Photo Gallery")
+            VStack {
+                SearchBar(text: $searchText, onSearch: {
+                    photoGalleryViewModel.processTextSearch(searchText)
+                })
+                .padding()
+                
+                PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs)
+            }
+            .navigationTitle("Photo Gallery")
         }
         .onAppear {
             photoGalleryViewModel.requestPhotoLibraryAccess()
@@ -22,14 +44,46 @@ struct ContentView: View {
     }
 }
 
+struct SearchBar: View {
+    @Binding var text: String
+    var onSearch: () -> Void
+
+    var body: some View {
+        HStack {
+            TextField("Enter search text", text: $text)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+            
+            Button(action: onSearch) {
+                Text("Search")
+            }
+        }
+    }
+}
+
+//struct PhotoGalleryView: View {
+//    let assets: [PHAsset]
+//
+//    var body: some View {
+//        ScrollView {
+//            LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 3), spacing: 2) {
+//                ForEach(assets, id: \.localIdentifier) { asset in
+//                    PhotoGridItemView(asset: asset)
+//                }
+//            }
+//        }
+//    }
+//}
 struct PhotoGalleryView: View {
     let assets: [PHAsset]
+    let topPhotoIDs: [String]
 
     var body: some View {
         ScrollView {
             LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 3), spacing: 2) {
-                ForEach(assets, id: \.localIdentifier) { asset in
-                    PhotoGridItemView(asset: asset)
+                ForEach(topPhotoIDs, id: \.self) { photoID in
+                    if let asset = assets.first(where: { $0.localIdentifier == photoID }) {
+                        PhotoGridItemView(asset: asset)
+                    }
                 }
             }
         }

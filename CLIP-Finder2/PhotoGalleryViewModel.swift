@@ -17,7 +17,53 @@ import CoreImage
 
 class PhotoGalleryViewModel: ObservableObject {
     @Published var assets: [PHAsset] = []
-    private var model = DataModel()
+    @Published var topPhotoIDs: [String] = []
+    //private var model = DataModel()
+    private var customTokenizer: CLIPTokenizer?
+    private var clipTextModel: CLIPTextModel
+    private var model: DataModel
+    
+    init() {
+        self.model = DataModel()
+        self.clipTextModel = CLIPTextModel()
+        setupTokenizer()
+    }
+
+    private func setupTokenizer() {
+        guard let bpePath = Bundle.main.path(forResource: "bpe_simple_vocab_16e6", ofType: "txt") else {
+            fatalError("No se pudo encontrar el archivo BPE en el bundle")
+        }
+        customTokenizer = CLIPTokenizer(bpePath: bpePath)
+    }
+
+    func processTextSearch(_ searchText: String) {
+        guard let tokenizer = customTokenizer else {
+            print("Tokenizer not initialized")
+            return
+        }
+
+        let tokenStartTime = DispatchTime.now()
+        let tokens = tokenizer.tokenize(texts: [searchText])
+        let tokenEndTime = DispatchTime.now()
+        let tokenNanoTime = tokenEndTime.uptimeNanoseconds - tokenStartTime.uptimeNanoseconds
+        let tokenTimeInterval = Double(tokenNanoTime) / 1_000_000
+        print("token processing time: \(tokenTimeInterval)")
+        print("Tokens:", tokens)
+
+        // Aquí puedes agregar la lógica para procesar los tokens y actualizar la vista
+        // Por ejemplo, podrías llamar a calculateAndPrintTopPhotoIDs() con estos tokens
+        if let textFeatures = clipTextModel.performInference(tokens: tokens[0]) {
+            print(textFeatures.toFloatArray())
+            let topIDs = calculateAndPrintTopPhotoIDs(textFeatures: textFeatures)
+            DispatchQueue.main.async {
+                self.topPhotoIDs = topIDs
+            }
+        } else {
+            print("Failed to get text features from CLIP text model")
+        }
+
+        
+    }
 
     func requestPhotoLibraryAccess() {
         PHPhotoLibrary.requestAuthorization { status in
@@ -95,52 +141,43 @@ class PhotoGalleryViewModel: ObservableObject {
                     // print("ID: \(identifier), Vector: \(cachedVector.toFloatArray())")
                 } else {
                     imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options) { image, _ in
-//                        if let image = image, let pixelBuffer = Preprocessing.preprocessImage(image, targetSize: targetSize), let vector = self.model.performInference(pixelBuffer) {
-//                            CoreDataManager.shared.saveVector(vector, for: identifier)
-//                            // print("ID: \(identifier), Vector: \(vector.toFloatArray())")
-//                        }
-                        if let dummyBuffer = self.createDummyWhitePixelBuffer(), let vector = self.model.performInference(dummyBuffer) {
+                        if let image = image, let pixelBuffer = Preprocessing.preprocessImage(image, targetSize: targetSize), let vector = self.model.performInference(pixelBuffer) {
                             CoreDataManager.shared.saveVector(vector, for: identifier)
-                            
+                            // print("ID: \(identifier), Vector: \(vector.toFloatArray())")
                         }
+//                        if let dummyBuffer = self.createDummyWhitePixelBuffer(), let vector = self.model.performInference(dummyBuffer) {
+//                            CoreDataManager.shared.saveVector(vector, for: identifier)
+//                        }
                     }
                 }
             }
-            let cpuStartTime = DispatchTime.now()
-            self.calculateAndPrintTopPhotoIDs_cpu()
-            let cpuEndTime = DispatchTime.now()
-            let cpuNanoTime = cpuEndTime.uptimeNanoseconds - cpuStartTime.uptimeNanoseconds
-            let cpuTimeInterval = Double(cpuNanoTime) / 1_000_000
-            print("cpu time: \(cpuTimeInterval) \n")
+//            let cpuStartTime = DispatchTime.now()
+//            self.calculateAndPrintTopPhotoIDs_cpu()
+//            let cpuEndTime = DispatchTime.now()
+//            let cpuNanoTime = cpuEndTime.uptimeNanoseconds - cpuStartTime.uptimeNanoseconds
+//            let cpuTimeInterval = Double(cpuNanoTime) / 1_000_000
+//            print("cpu time: \(cpuTimeInterval) \n")
             
-            let gpuStartTime = DispatchTime.now()
-            self.calculateAndPrintTopPhotoIDs()
-            let gpuEndTime = DispatchTime.now()
-            let gpuNanoTime = gpuEndTime.uptimeNanoseconds - gpuStartTime.uptimeNanoseconds
-            let gpuTimeInterval = Double(gpuNanoTime) / 1_000_000
-            print("gpu time: \(gpuTimeInterval) \n")
+//            let gpuStartTime = DispatchTime.now()
+//            self.calculateAndPrintTopPhotoIDs()
+//            let gpuEndTime = DispatchTime.now()
+//            let gpuNanoTime = gpuEndTime.uptimeNanoseconds - gpuStartTime.uptimeNanoseconds
+//            let gpuTimeInterval = Double(gpuNanoTime) / 1_000_000
+//            print("gpu time: \(gpuTimeInterval) \n")
             
-            // Asumiendo que el archivo se llama "bpe_simple_vocab_16e6.txt"
-            guard let bpePath = Bundle.main.path(forResource: "bpe_simple_vocab_16e6", ofType: "txt") else {
-                fatalError("No se pudo encontrar el archivo BPE en el bundle")
-            }
-
-            let customTokenizer = CLIPTokenizer(bpePath: bpePath)
-
-            // Ejemplo de uso
-            let tokenStartTime = DispatchTime.now()
-            
-            
-            let textToTokenize = "I'AM so excited !!!, we've should go by 1 element by the two? ! , reasons"
-            let tokens = customTokenizer.tokenize(texts: [textToTokenize])
-            
-            let tokenEndTime = DispatchTime.now()
-            let tokenNanoTime = tokenEndTime.uptimeNanoseconds - tokenStartTime.uptimeNanoseconds
-            let tokenTimeInterval = Double(tokenNanoTime) / 1_000_000
-            print("token processing time: \(tokenTimeInterval) \n")
-            print("Tokens:", tokens)
-            
-           
+//            // Asumiendo que el archivo se llama "bpe_simple_vocab_16e6.txt"
+//            guard let bpePath = Bundle.main.path(forResource: "bpe_simple_vocab_16e6", ofType: "txt") else {
+//                fatalError("No se pudo encontrar el archivo BPE en el bundle")
+//            }
+//            let customTokenizer = CLIPTokenizer(bpePath: bpePath)
+//            let tokenStartTime = DispatchTime.now()
+//            let textToTokenize = "this is a cat"
+//            let tokens = customTokenizer.tokenize(texts: [textToTokenize])
+//            let tokenEndTime = DispatchTime.now()
+//            let tokenNanoTime = tokenEndTime.uptimeNanoseconds - tokenStartTime.uptimeNanoseconds
+//            let tokenTimeInterval = Double(tokenNanoTime) / 1_000_000
+//            print("token processing time: \(tokenTimeInterval) \n")
+//            print("Tokens:", tokens)
             
         }
     }
@@ -227,13 +264,14 @@ class PhotoGalleryViewModel: ObservableObject {
         print("Top 10 photo IDs (CPU): \(bestPhotoIDs)")
     }
 
-    private func calculateAndPrintTopPhotoIDs() {
+    private func calculateAndPrintTopPhotoIDs(textFeatures: MLMultiArray) -> [String] {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Metal is not supported on this device")
         }
 
         let graph = MPSGraph()
-        let textFeatures = MPSGraphExtensions.generateTextFeatures(device: device)
+        // let textFeatures = MPSGraphExtensions.generateTextFeatures(device: device)
+        let textFeaturesArray = MPSGraphExtensions.convertTextFeaturesToMPSNDArray(textFeatures: textFeatures, device: device)
         
         // Obtener todos los vectores de fotos e IDs desde Core Data
         let photoVectorsWithIDs = CoreDataManager.shared.fetchAllPhotoVectors()
@@ -301,7 +339,7 @@ class PhotoGalleryViewModel: ObservableObject {
         let similaritiesTensor = MPSGraphExtensions.calculateSimilarities(graph: graph, textTensor: textTensor, photoTensor: photoTensor)
     
         // Crear MPSGraphTensorData para feeds
-        let textFeaturesData = MPSGraphTensorData(textFeatures)
+        let textFeaturesData = MPSGraphTensorData(textFeaturesArray)
         let photoFeaturesData = MPSGraphTensorData(photoFeatures)
 
 
@@ -319,7 +357,7 @@ class PhotoGalleryViewModel: ObservableObject {
         var similarities = [Float16](repeating: 0, count: photoVectors.count)
         similaritiesNDArray?.readBytes(&similarities, strideBytes: nil)
         
-//        print("Similarities vector: \(similarities)")
+        print("Similarities vector: \(similarities)")
         
         let bestPhotoIndices = similarities.enumerated().sorted(by: { $0.element > $1.element }).map { $0.offset }
         
@@ -327,6 +365,9 @@ class PhotoGalleryViewModel: ObservableObject {
         let bestPhotoIDs = bestPhotoIndices.prefix(10).map { photoIDs[$0] }
         
         print("Top 10 photo IDs: \(bestPhotoIDs)")
+        
+        
+        return bestPhotoIDs
     }
 }
 

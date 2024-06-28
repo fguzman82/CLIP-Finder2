@@ -36,24 +36,6 @@ final class DataModel {
             let prediction = try model.prediction(input_image: pixelBuffer)
             print("Prediction successful.")
             if let multiArray = prediction.featureValue(for: "var_1259")?.multiArrayValue {
-//                // Inspeccionar el MLMultiArray
-//                print("MLMultiArray inspection:")
-//                print("Count: \(multiArray.count)")
-//                // Desglosar el tipo de datos
-//                switch multiArray.dataType {
-//                case .int32:
-//                    print("Data Type: int32")
-//                case .float16:
-//                    print("Data Type: float16")
-//                case .float32:
-//                    print("Data Type: float32")
-//                case .double:
-//                    print("Data Type: double")
-//                default:
-//                    print("Data Type: unknown")
-//                }
-//                print("Shape: \(multiArray.shape)")
-//                print("Strides: \(multiArray.strides)")
                 return multiArray
             }
             else {
