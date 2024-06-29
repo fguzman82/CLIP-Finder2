@@ -22,11 +22,55 @@ class PhotoGalleryViewModel: ObservableObject {
     private var customTokenizer: CLIPTokenizer?
     private var clipTextModel: CLIPTextModel
     private var model: DataModel
+    private var searchTask: Task<Void, Never>?
+    private var isCameraActive = false
+    let cameraManager = CameraManager()
+//    var onFrameCaptured: ((CIImage) -> Void)?
     
     init() {
         self.model = DataModel()
         self.clipTextModel = CLIPTextModel()
         setupTokenizer()
+        setupCameraManager()
+    }
+    
+    private func setupCameraManager() {
+        cameraManager.onFrameCaptured = { [weak self] ciImage in
+            guard let self = self, self.isCameraActive else { return }
+            self.performImageSearch(from: ciImage)
+        }
+    }
+    
+    func startCamera() {
+        isCameraActive = true
+        cameraManager.startRunning()
+    }
+
+    func stopCamera() {
+        isCameraActive = false
+        cameraManager.stopRunning()
+    }
+    
+//    func pauseCamera() {
+//        cameraManager.pauseCapture()
+//    }
+//    
+//    func resumeCamera() {
+//        cameraManager.resumeCapture()
+//    }
+    
+    
+    func requestCameraAccess(completion: @escaping (Bool) -> Void) {
+        AVCaptureDevice.requestAccess(for: .video) { granted in
+            DispatchQueue.main.async {
+                if granted {
+                    print("Camera access granted")
+                } else {
+                    print("Camera access denied")
+                }
+                completion(granted)
+            }
+        }
     }
 
     private func setupTokenizer() {
@@ -35,25 +79,42 @@ class PhotoGalleryViewModel: ObservableObject {
         }
         customTokenizer = CLIPTokenizer(bpePath: bpePath)
     }
-
+    
     func processTextSearch(_ searchText: String) {
+        // Cancelar la tarea de búsqueda anterior si existe
+        searchTask?.cancel()
+        
+        // Crear una nueva tarea de búsqueda
+        searchTask = Task {
+            // Añadir un pequeño retraso para evitar búsquedas excesivas
+            try? await Task.sleep(nanoseconds: 300_000_000) // 300ms
+            
+            guard !Task.isCancelled else { return }
+            
+            await MainActor.run {
+                performSearch(searchText)
+            }
+        }
+    }
+
+    private func performSearch(_ searchText: String) {
         guard let tokenizer = customTokenizer else {
             print("Tokenizer not initialized")
             return
         }
 
-        let tokenStartTime = DispatchTime.now()
+//        let tokenStartTime = DispatchTime.now()
         let tokens = tokenizer.tokenize(texts: [searchText])
-        let tokenEndTime = DispatchTime.now()
-        let tokenNanoTime = tokenEndTime.uptimeNanoseconds - tokenStartTime.uptimeNanoseconds
-        let tokenTimeInterval = Double(tokenNanoTime) / 1_000_000
-        print("token processing time: \(tokenTimeInterval)")
-        print("Tokens:", tokens)
+//        let tokenEndTime = DispatchTime.now()
+//        let tokenNanoTime = tokenEndTime.uptimeNanoseconds - tokenStartTime.uptimeNanoseconds
+//        let tokenTimeInterval = Double(tokenNanoTime) / 1_000_000
+//        print("token processing time: \(tokenTimeInterval)")
+//        print("Tokens:", tokens)
 
         // Aquí puedes agregar la lógica para procesar los tokens y actualizar la vista
         // Por ejemplo, podrías llamar a calculateAndPrintTopPhotoIDs() con estos tokens
         if let textFeatures = clipTextModel.performInference(tokens: tokens[0]) {
-            print(textFeatures.toFloatArray())
+//            print(textFeatures.toFloatArray())
             let topIDs = calculateAndPrintTopPhotoIDs(textFeatures: textFeatures)
             DispatchQueue.main.async {
                 self.topPhotoIDs = topIDs
@@ -63,6 +124,21 @@ class PhotoGalleryViewModel: ObservableObject {
         }
 
         
+    }
+    
+    func performImageSearch(from ciImage: CIImage) {
+        guard isCameraActive else { return }
+        guard let cgImage = CIContext().createCGImage(ciImage, from: ciImage.extent) else { return }
+        let uiImage = UIImage(cgImage: cgImage)
+        
+        guard let pixelBuffer = Preprocessing.preprocessImage(uiImage, targetSize: CGSize(width: 256, height: 256)) else { return }
+        
+        guard let imageFeatures = model.performInference(pixelBuffer) else { return }
+        
+        let topIDs = calculateAndPrintTopPhotoIDs(textFeatures: imageFeatures)
+        DispatchQueue.main.async {
+            self.topPhotoIDs = topIDs
+        }
     }
 
     func requestPhotoLibraryAccess() {
@@ -357,14 +433,14 @@ class PhotoGalleryViewModel: ObservableObject {
         var similarities = [Float16](repeating: 0, count: photoVectors.count)
         similaritiesNDArray?.readBytes(&similarities, strideBytes: nil)
         
-        print("Similarities vector: \(similarities)")
+//        print("Similarities vector: \(similarities)")
         
         let bestPhotoIndices = similarities.enumerated().sorted(by: { $0.element > $1.element }).map { $0.offset }
         
         // Obtener los IDs de las mejores fotos
-        let bestPhotoIDs = bestPhotoIndices.prefix(10).map { photoIDs[$0] }
+        let bestPhotoIDs = bestPhotoIndices.prefix(48).map { photoIDs[$0] }
         
-        print("Top 10 photo IDs: \(bestPhotoIDs)")
+//        print("Top 48 photo IDs: \(bestPhotoIDs)")
         
         
         return bestPhotoIDs
