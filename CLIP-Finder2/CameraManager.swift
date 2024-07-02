@@ -92,7 +92,41 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
             }
         }
     }
+    
+    func pauseCapture() {
+        session.stopRunning()
+    }
 
+    func resumeCapture() {
+        if !session.isRunning {
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                self?.session.startRunning()
+            }
+        }
+    }
+
+//    func switchCamera() {
+//        guard let currentInput = input else { return }
+//        session.beginConfiguration()
+//        session.removeInput(currentInput)
+//
+//        if currentInput.device.position == .back {
+//            camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+//        } else {
+//            camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
+//        }
+//
+//        do {
+//            input = try AVCaptureDeviceInput(device: camera!)
+//            if session.canAddInput(input!) {
+//                session.addInput(input!)
+//            }
+//        } catch {
+//            print("Error switching camera: \(error.localizedDescription)")
+//        }
+//
+//        session.commitConfiguration()
+//    }
     func switchCamera() {
         guard let currentInput = input else { return }
         session.beginConfiguration()
@@ -114,6 +148,8 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
         }
 
         session.commitConfiguration()
+        
+        
     }
     
     private func configureCamera() {

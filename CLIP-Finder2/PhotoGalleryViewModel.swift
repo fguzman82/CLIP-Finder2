@@ -23,41 +23,90 @@ class PhotoGalleryViewModel: ObservableObject {
     private var clipTextModel: CLIPTextModel
     private var model: DataModel
     private var searchTask: Task<Void, Never>?
-    private var isCameraActive = false
-    let cameraManager = CameraManager()
-//    var onFrameCaptured: ((CIImage) -> Void)?
+    @Published var isCameraActive = false
+    @Published var isPaused = false
+    var onFrameCaptured: ((CIImage) -> Void)?
+//    let cameraManager = CameraManager()
+    private var cameraManager: CameraManager
+    @Published var processingProgress: Float = 0
+    @Published var processedPhotosCount: Int = 0
+    @Published var totalPhotosCount: Int = 0
+    @Published var isProcessing: Bool = false
+    private var updateTimer: Timer?
+
     
     init() {
+        self.cameraManager = CameraManager()
         self.model = DataModel()
         self.clipTextModel = CLIPTextModel()
         setupTokenizer()
         setupCameraManager()
     }
     
+//    private func setupCameraManager() {
+//        cameraManager.onFrameCaptured = { [weak self] ciImage in
+//            guard let self = self, self.isCameraActive else { return }
+//            self.performImageSearch(from: ciImage)
+//        }
+//    }
     private func setupCameraManager() {
         cameraManager.onFrameCaptured = { [weak self] ciImage in
-            guard let self = self, self.isCameraActive else { return }
+            guard let self = self, self.isCameraActive, !self.isPaused else { return }
             self.performImageSearch(from: ciImage)
+            self.onFrameCaptured?(ciImage)
         }
     }
     
     func startCamera() {
         isCameraActive = true
+        isPaused = false
         cameraManager.startRunning()
     }
 
     func stopCamera() {
         isCameraActive = false
+        isPaused = false
         cameraManager.stopRunning()
     }
     
-//    func pauseCamera() {
-//        cameraManager.pauseCapture()
-//    }
-//    
-//    func resumeCamera() {
-//        cameraManager.resumeCapture()
-//    }
+    func pauseCamera() {
+        isPaused = true
+        cameraManager.pauseCapture()
+    }
+
+    func resumeCamera() {
+        isPaused = false
+        cameraManager.resumeCapture()
+    }
+    
+    func togglePause() {
+        isPaused.toggle()
+        if isPaused {
+            cameraManager.pauseCapture()
+        } else {
+            cameraManager.resumeCapture()
+        }
+    }
+    
+    func getCameraSession() -> AVCaptureSession {
+        return cameraManager.session
+    }
+
+    func focusCamera(at point: CGPoint) {
+        cameraManager.focusAtPoint(point)
+    }
+
+    func switchCamera() {
+        cameraManager.switchCamera()
+        if isPaused {
+            // Si estaba en pausa, captura un nuevo frame para actualizar la imagen
+            cameraManager.resumeCapture()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                self.cameraManager.pauseCapture()
+            }
+        }
+        objectWillChange.send()
+    }
     
     
     func requestCameraAccess(completion: @escaping (Bool) -> Void) {
@@ -161,7 +210,14 @@ class PhotoGalleryViewModel: ObservableObject {
             }
             DispatchQueue.main.async {
                 self.assets = assets
-                self.processAndCachePhotos()
+//                self.processAndCachePhotos()
+                profileAsync("CachePhotos-fetch") { done in
+                    self.processAndCachePhotos {
+                        done()
+                    }
+                } completion: { time in
+                    print("Procesamiento y caché completados en \(time) ms")
+                }
             }
         }
     }
@@ -181,83 +237,96 @@ class PhotoGalleryViewModel: ObservableObject {
 //                let identifier = asset.localIdentifier
 //
 //                if let cachedVector = CoreDataManager.shared.fetchVector(for: identifier) {
+//                    // CoreDataManager.shared.deleteAllData()
 //                    // Handle the cached vector as needed
 //                    print("ID: \(identifier), Vector: \(cachedVector.toFloatArray())")
 //                } else {
 //                    imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options) { image, _ in
 //                        if let image = image, let pixelBuffer = Preprocessing.preprocessImage(image, targetSize: targetSize), let vector = self.model.performInference(pixelBuffer) {
 //                            CoreDataManager.shared.saveVector(vector, for: identifier)
-//                            print("ID: \(identifier), Vector: \(vector.toFloatArray())")
+//                            // print("ID: \(identifier), Vector: \(vector.toFloatArray())")
 //                        }
+////                        if let dummyBuffer = self.createDummyWhitePixelBuffer(), let vector = self.model.performInference(dummyBuffer) {
+////                            CoreDataManager.shared.saveVector(vector, for: identifier)
+////                        }
 //                    }
 //                }
 //            }
-//
-//            // Si estás utilizando `UICollectionView`, puedes eliminar o ajustar esta línea
-//            // self.collectionView.reloadData()
+//            
 //        }
 //    }
-    private func processAndCachePhotos() {
+
+    private func processAndCachePhotos(completion: @escaping () -> Void) {
         let imageManager = PHImageManager.default()
         let options = PHImageRequestOptions()
         options.isSynchronous = true
-        options.deliveryMode = .highQualityFormat
+//        options.deliveryMode = .highQualityFormat
+        options.deliveryMode = .fastFormat
+        options.isNetworkAccessAllowed = false
+        options.version = .current
 
-        DispatchQueue.main.async {
+        DispatchQueue.global(qos: .userInitiated).async {
             let targetSize = CGSize(width: 256, height: 256)
             
             print("cache async")
 
+            let totalPhotosCount = self.assets.count
+            var localProcessedCount = 0
+            let group = DispatchGroup()
+
+            // Iniciar un timer para actualizar la UI cada 3 segundos
+            DispatchQueue.main.async {
+                self.isProcessing = true
+                self.totalPhotosCount = totalPhotosCount
+                self.updateTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { _ in
+                    DispatchQueue.main.async {
+                        self.processedPhotosCount = localProcessedCount
+                        self.processingProgress = Float(localProcessedCount) / Float(totalPhotosCount)
+                    }
+                }
+            }
+
             for asset in self.assets {
+                group.enter()
                 let identifier = asset.localIdentifier
 
-                if let cachedVector = CoreDataManager.shared.fetchVector(for: identifier) {
-                    // CoreDataManager.shared.deleteAllData()
-                    // Handle the cached vector as needed
-                    // print("ID: \(identifier), Vector: \(cachedVector.toFloatArray())")
+                if CoreDataManager.shared.fetchVector(for: identifier) != nil {
+                    localProcessedCount += 1
+                    group.leave()
                 } else {
                     imageManager.requestImage(for: asset, targetSize: targetSize, contentMode: .aspectFill, options: options) { image, _ in
                         if let image = image, let pixelBuffer = Preprocessing.preprocessImage(image, targetSize: targetSize), let vector = self.model.performInference(pixelBuffer) {
                             CoreDataManager.shared.saveVector(vector, for: identifier)
-                            // print("ID: \(identifier), Vector: \(vector.toFloatArray())")
                         }
-//                        if let dummyBuffer = self.createDummyWhitePixelBuffer(), let vector = self.model.performInference(dummyBuffer) {
-//                            CoreDataManager.shared.saveVector(vector, for: identifier)
-//                        }
+                        localProcessedCount += 1
+                        group.leave()
                     }
                 }
             }
-//            let cpuStartTime = DispatchTime.now()
-//            self.calculateAndPrintTopPhotoIDs_cpu()
-//            let cpuEndTime = DispatchTime.now()
-//            let cpuNanoTime = cpuEndTime.uptimeNanoseconds - cpuStartTime.uptimeNanoseconds
-//            let cpuTimeInterval = Double(cpuNanoTime) / 1_000_000
-//            print("cpu time: \(cpuTimeInterval) \n")
-            
-//            let gpuStartTime = DispatchTime.now()
-//            self.calculateAndPrintTopPhotoIDs()
-//            let gpuEndTime = DispatchTime.now()
-//            let gpuNanoTime = gpuEndTime.uptimeNanoseconds - gpuStartTime.uptimeNanoseconds
-//            let gpuTimeInterval = Double(gpuNanoTime) / 1_000_000
-//            print("gpu time: \(gpuTimeInterval) \n")
-            
-//            // Asumiendo que el archivo se llama "bpe_simple_vocab_16e6.txt"
-//            guard let bpePath = Bundle.main.path(forResource: "bpe_simple_vocab_16e6", ofType: "txt") else {
-//                fatalError("No se pudo encontrar el archivo BPE en el bundle")
-//            }
-//            let customTokenizer = CLIPTokenizer(bpePath: bpePath)
-//            let tokenStartTime = DispatchTime.now()
-//            let textToTokenize = "this is a cat"
-//            let tokens = customTokenizer.tokenize(texts: [textToTokenize])
-//            let tokenEndTime = DispatchTime.now()
-//            let tokenNanoTime = tokenEndTime.uptimeNanoseconds - tokenStartTime.uptimeNanoseconds
-//            let tokenTimeInterval = Double(tokenNanoTime) / 1_000_000
-//            print("token processing time: \(tokenTimeInterval) \n")
-//            print("Tokens:", tokens)
-            
+
+            group.notify(queue: .main) {
+                self.updateTimer?.invalidate()
+                self.processedPhotosCount = localProcessedCount
+                self.processingProgress = 1.0
+                self.isProcessing = false
+                completion()
+            }
         }
     }
     
+    func reprocessPhotos() {
+        DispatchQueue.global(qos: .userInitiated).async {
+            CoreDataManager.shared.deleteAllData()
+            profileAsync("CachePhotos-reprocess") { done in
+                self.processAndCachePhotos {
+                    done()
+                }
+            } completion: { time in
+                print("Procesamiento y caché completados en \(time) ms")
+            }
+//            self.processAndCachePhotos()
+        }
+    }
 
     
     private func createDummyWhitePixelBuffer(width: Int = 256, height: Int = 256) -> CVPixelBuffer? {

@@ -34,7 +34,7 @@ final class DataModel {
 
         do {
             let prediction = try model.prediction(input_image: pixelBuffer)
-            print("Prediction successful.")
+//            print("Prediction successful.")
             if let multiArray = prediction.featureValue(for: "var_1259")?.multiArrayValue {
                 return multiArray
             }

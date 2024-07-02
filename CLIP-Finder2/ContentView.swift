@@ -8,87 +8,414 @@
 import SwiftUI
 import Photos
 
+//struct ContentView: View {
+//    @StateObject private var photoGalleryViewModel = PhotoGalleryViewModel()
+//    @State private var searchText = ""
+//    @State private var isPreviewActive = false
+//    @State private var isCameraAuthorized = false
+//    @FocusState private var isTextFieldFocused: Bool
+//    
+//    var body: some View {
+//        NavigationView {
+//            ZStack {
+//                VStack {
+//                    HStack {
+//                        TextField("Enter search text", text: $searchText)
+//                            .textFieldStyle(RoundedBorderTextFieldStyle())
+//                            .focused($isTextFieldFocused)
+//                            .onChange(of: searchText) { newValue in
+//                                photoGalleryViewModel.processTextSearch(newValue)
+//                            }
+//                        
+//                        Button(action: {
+//                            isTextFieldFocused = false
+//                            if isCameraAuthorized {
+//                                isPreviewActive = true
+//                            } else {
+//                                photoGalleryViewModel.requestCameraAccess { authorized in
+//                                    isCameraAuthorized = authorized
+//                                    if authorized {
+//                                        isPreviewActive = true
+//                                    }
+//                                }
+//                            }
+//                        }) {
+//                            Image(systemName: "camera")
+//                                .foregroundColor(.blue)
+//                                .frame(width: 44, height: 44)
+//                                .contentShape(Rectangle())
+//                        }
+//                        .accessibilityLabel("Open Camera")
+//                    }
+//                    .padding()
+//                    
+//                    if photoGalleryViewModel.topPhotoIDs.isEmpty {
+//                        Text("No results found")
+//                            .foregroundColor(.secondary)
+//                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                    } else {
+//                        PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs)
+//                    }
+//                }
+//                
+//                if isPreviewActive {
+//                    Color.black.opacity(0.01)  // Fondo transparente para detectar toques
+//                        .edgesIgnoringSafeArea(.all)
+//                        .onTapGesture {
+//                            isPreviewActive = false
+//                            photoGalleryViewModel.stopCamera()
+//                        }
+//                    
+//                    CameraPreviewView(cameraManager: photoGalleryViewModel.cameraManager, photoGalleryViewModel: photoGalleryViewModel, isPreviewActive: $isPreviewActive)
+//                        .frame(height: 300)
+//                        .position(x: UIScreen.main.bounds.width / 2, y: 150)
+//                }
+//            }
+//            .navigationTitle("CLIP-Finder")
+//        }
+//        .onAppear {
+//            photoGalleryViewModel.requestPhotoLibraryAccess()
+//        }
+//        .onTapGesture {
+//            isTextFieldFocused = false
+//        }
+//    }
+//}
+
+//struct ContentView: View {
+//    @StateObject private var photoGalleryViewModel = PhotoGalleryViewModel()
+//    @State private var searchText = ""
+//    @State private var isPreviewActive = false
+//    @State private var isCameraAuthorized = false
+//    @FocusState private var isTextFieldFocused: Bool
+//    @State private var orientation = UIDeviceOrientation.unknown
+//    @State private var previousOrientation = UIDeviceOrientation.unknown
+//
+//    
+//    var body: some View {
+//        NavigationView {
+//            GeometryReader { geometry in
+//                VStack {
+//                    HStack {
+//                        TextField("Enter search text", text: $searchText)
+//                            .textFieldStyle(RoundedBorderTextFieldStyle())
+//                            .focused($isTextFieldFocused)
+//                            .onChange(of: searchText) { newValue in
+//                                photoGalleryViewModel.processTextSearch(newValue)
+//                            }
+//                        
+//                        Button(action: {
+//                            isTextFieldFocused = false
+//                            if isCameraAuthorized {
+//                                isPreviewActive = true
+//                            } else {
+//                                photoGalleryViewModel.requestCameraAccess { authorized in
+//                                    isCameraAuthorized = authorized
+//                                    if authorized {
+//                                        isPreviewActive = true
+//                                    }
+//                                }
+//                            }
+//                        }) {
+//                            Image(systemName: "camera")
+//                                .foregroundColor(.blue)
+//                                .frame(width: 44, height: 44)
+//                                .contentShape(Rectangle())
+//                        }
+//                        .accessibilityLabel("Open Camera")
+//                    }
+//                    .padding()
+//                    
+//                    if orientation.isLandscape {
+//                        HStack {
+////                            if isPreviewActive {
+////                                CameraPreviewView(cameraManager: photoGalleryViewModel.cameraManager, photoGalleryViewModel: photoGalleryViewModel, isPreviewActive: $isPreviewActive, orientation: $orientation)
+////                                    .frame(width: geometry.size.width * 0.4)
+////                            }
+//                            if isPreviewActive {
+//                                CameraPreviewView(photoGalleryViewModel: photoGalleryViewModel, isPreviewActive: $isPreviewActive, orientation: $orientation)
+//                                    .frame(width: geometry.size.width * 0.4)
+//                            }
+//                            
+//                            if photoGalleryViewModel.topPhotoIDs.isEmpty {
+//                                Text("No results found")
+//                                    .foregroundColor(.secondary)
+//                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                            } else {
+//                                PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: isPreviewActive ? 4 : 7)
+//                            }
+//                        }
+//                    } else {
+////                        if isPreviewActive {
+////                            CameraPreviewView(cameraManager: photoGalleryViewModel.cameraManager, photoGalleryViewModel: photoGalleryViewModel, isPreviewActive: $isPreviewActive, orientation: $orientation)
+////                                .frame(height: 300)
+////                        }
+//                        if isPreviewActive {
+//                            CameraPreviewView(photoGalleryViewModel: photoGalleryViewModel, isPreviewActive: $isPreviewActive, orientation: $orientation)
+//                                .frame(height: 300)
+//                        }
+//                        
+//                        if photoGalleryViewModel.topPhotoIDs.isEmpty {
+//                            Text("No results found")
+//                                .foregroundColor(.secondary)
+//                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                        } else {
+//                            PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: 4)
+//                        }
+//                    }
+//                }
+//            }
+//            .navigationTitle("CLIP-Finder")
+//        }
+//        .onAppear {
+//            photoGalleryViewModel.requestPhotoLibraryAccess()
+//            previousOrientation = UIDevice.current.orientation
+//        }
+//        .onRotate { newOrientation in
+//            let oldOrientation = orientation
+//            orientation = newOrientation
+//            
+//            if isPreviewActive && orientationChanged(from: oldOrientation, to: newOrientation) {
+//                isPreviewActive = false
+//                photoGalleryViewModel.stopCamera()
+//            }
+//        }
+//        .onTapGesture {
+//            isTextFieldFocused = false
+//        }
+//    }
+//    private func orientationChanged(from oldOrientation: UIDeviceOrientation, to newOrientation: UIDeviceOrientation) -> Bool {
+//        let oldIsLandscape = oldOrientation.isLandscape
+//        let newIsLandscape = newOrientation.isLandscape
+//        return oldIsLandscape != newIsLandscape
+//    }
+//}
+
 struct ContentView: View {
     @StateObject private var photoGalleryViewModel = PhotoGalleryViewModel()
     @State private var searchText = ""
     @State private var isPreviewActive = false
     @State private var isCameraAuthorized = false
     @FocusState private var isTextFieldFocused: Bool
+    @State private var orientation = UIDeviceOrientation.unknown
+    @State private var previousOrientation = UIDeviceOrientation.unknown
+    @State private var showingSettings = false
 
-
-//    var body: some View {
-//        NavigationView {
-//            VStack {
-//                SearchBar(text: $searchText, onSearch: {
-//                    photoGalleryViewModel.processTextSearch(searchText)
-//                })
-//                .padding()
-//                
-//                PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs)
-//            }
-//            .navigationTitle("Photo Gallery")
-//        }
-//        .onAppear {
-//            photoGalleryViewModel.requestPhotoLibraryAccess()
-//        }
-//    }
     var body: some View {
         NavigationView {
-            VStack {
-                HStack {
-                    TextField("Enter search text", text: $searchText)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .focused($isTextFieldFocused)
-                        .onChange(of: searchText) { newValue in
-                            photoGalleryViewModel.processTextSearch(newValue)
-                        }
-                    
-                    Button(action: {
-                        isTextFieldFocused = false
-                        if isCameraAuthorized {
-                            isPreviewActive = true
-                        } else {
-                            photoGalleryViewModel.requestCameraAccess { authorized in
-                                isCameraAuthorized = authorized
-                                if authorized {
+            GeometryReader { geometry in
+                ZStack {
+                    VStack {
+                        HStack {
+                            TextField("Enter search text", text: $searchText)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .focused($isTextFieldFocused)
+                                .onChange(of: searchText) { newValue in
+                                    photoGalleryViewModel.processTextSearch(newValue)
+                                }
+                            
+                            Button(action: {
+                                isTextFieldFocused = false
+                                if isCameraAuthorized {
                                     isPreviewActive = true
+                                } else {
+                                    photoGalleryViewModel.requestCameraAccess { authorized in
+                                        isCameraAuthorized = authorized
+                                        if authorized {
+                                            isPreviewActive = true
+                                        }
+                                    }
+                                }
+                            }) {
+                                Image(systemName: "camera")
+                                    .foregroundColor(.blue)
+                                    .frame(width: 44, height: 44)
+                                    .contentShape(Rectangle())
+                            }
+                            .accessibilityLabel("Open Camera")
+                        }
+                        .padding()
+                        
+                        if orientation.isLandscape {
+                            HStack {
+                                if isPreviewActive {
+                                    CameraPreviewView(photoGalleryViewModel: photoGalleryViewModel, isPreviewActive: $isPreviewActive, orientation: $orientation)
+                                        .frame(width: geometry.size.width * 0.4)
+                                }
+                                
+                                if photoGalleryViewModel.topPhotoIDs.isEmpty {
+                                    Text("No results found")
+                                        .foregroundColor(.secondary)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                } else {
+                                    PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: isPreviewActive ? 4 : 7)
                                 }
                             }
+                        } else {
+                            if isPreviewActive {
+                                CameraPreviewView(photoGalleryViewModel: photoGalleryViewModel, isPreviewActive: $isPreviewActive, orientation: $orientation)
+                                    .frame(height: 300)
+                            }
+                            
+                            if photoGalleryViewModel.topPhotoIDs.isEmpty {
+                                Text("No results found")
+                                    .foregroundColor(.secondary)
+                                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            } else {
+                                PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: 4)
+                            }
                         }
-                    }) {
-                        Image(systemName: "camera")
-                                .foregroundColor(.blue)
-                                .frame(width: 44, height: 44)  // Tamaño mínimo recomendado para objetivos táctiles
-                                .contentShape(Rectangle())
+                        
+                        if photoGalleryViewModel.isProcessing {
+                            VStack {
+                                ProgressView(value: photoGalleryViewModel.processingProgress) {
+                                    Text("Processing Photos: \(photoGalleryViewModel.processedPhotosCount)/\(photoGalleryViewModel.totalPhotosCount)")
+                                }
+                                .progressViewStyle(LinearProgressViewStyle())
+                                .padding()
+                            }
                         }
-                        .accessibilityLabel("Open Camera")
-                }
-                .padding()
-                
-                if isPreviewActive {
-                    CameraPreviewView(cameraManager: photoGalleryViewModel.cameraManager, photoGalleryViewModel: photoGalleryViewModel, isPreviewActive: $isPreviewActive)
-                        .frame(height: 300)
-                }
-                
-                if photoGalleryViewModel.topPhotoIDs.isEmpty {
-                    Text("No results found")
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else {
-                    PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs)
+                        
+                    }
+                    
+//                    if isPreviewActive {
+//                        Color.black.opacity(0.01)  // Fondo transparente para detectar toques
+//                            .edgesIgnoringSafeArea(.all)
+//                            .onTapGesture {
+//                                photoGalleryViewModel.stopCamera()
+//                                isPreviewActive = false
+//                            }
+//                    }
                 }
             }
             .navigationTitle("CLIP-Finder")
-            
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "gear")
+                    }
+                }
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView(photoGalleryViewModel: photoGalleryViewModel)
+            }
         }
         .onAppear {
             photoGalleryViewModel.requestPhotoLibraryAccess()
+            previousOrientation = UIDevice.current.orientation
+        }
+        .onRotate { newOrientation in
+            let oldOrientation = orientation
+            orientation = newOrientation
+            
+            if orientationChanged(from: oldOrientation, to: newOrientation) {
+                isPreviewActive = false
+//                photoGalleryViewModel.stopCamera()
+            }
         }
         .onTapGesture {
             isTextFieldFocused = false
         }
+        .onChange(of: photoGalleryViewModel.isCameraActive) { newValue in
+            if !newValue {
+                isPreviewActive = false
+            }
+        }
+    }
+
+    private func orientationChanged(from oldOrientation: UIDeviceOrientation, to newOrientation: UIDeviceOrientation) -> Bool {
+        let oldIsLandscape = oldOrientation.isLandscape
+        let newIsLandscape = newOrientation.isLandscape
+        return oldIsLandscape != newIsLandscape
     }
 }
+
+// Extensión para detectar la rotación del dispositivo
+extension View {
+    func onRotate(perform action: @escaping (UIDeviceOrientation) -> Void) -> some View {
+        self.modifier(DeviceRotationViewModifier(action: action))
+    }
+}
+
+// Modificador para detectar la rotación del dispositivo
+struct DeviceRotationViewModifier: ViewModifier {
+    let action: (UIDeviceOrientation) -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .onAppear()
+            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+                action(UIDevice.current.orientation)
+            }
+    }
+}
+
+// Extensión para comprobar si la orientación es horizontal
+extension UIDeviceOrientation {
+    var isLandscape: Bool {
+        return self == .landscapeLeft || self == .landscapeRight
+    }
+}
+
+//    var body: some View {
+//        NavigationView {
+//            VStack {
+//                HStack {
+//                    TextField("Enter search text", text: $searchText)
+//                        .textFieldStyle(RoundedBorderTextFieldStyle())
+//                        .focused($isTextFieldFocused)
+//                        .onChange(of: searchText) { newValue in
+//                            photoGalleryViewModel.processTextSearch(newValue)
+//                        }
+//                    
+//                    Button(action: {
+//                        isTextFieldFocused = false
+//                        if isCameraAuthorized {
+//                            isPreviewActive = true
+//                        } else {
+//                            photoGalleryViewModel.requestCameraAccess { authorized in
+//                                isCameraAuthorized = authorized
+//                                if authorized {
+//                                    isPreviewActive = true
+//                                }
+//                            }
+//                        }
+//                    }) {
+//                        Image(systemName: "camera")
+//                                .foregroundColor(.blue)
+//                                .frame(width: 44, height: 44)  // Tamaño mínimo recomendado para objetivos táctiles
+//                                .contentShape(Rectangle())
+//                        }
+//                        .accessibilityLabel("Open Camera")
+//                }
+//                .padding()
+//                
+//                if isPreviewActive {
+//                    CameraPreviewView(cameraManager: photoGalleryViewModel.cameraManager, photoGalleryViewModel: photoGalleryViewModel, isPreviewActive: $isPreviewActive)
+//                        .frame(height: 300)
+//                }
+//                
+//                if photoGalleryViewModel.topPhotoIDs.isEmpty {
+//                    Text("No results found")
+//                        .foregroundColor(.secondary)
+//                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+//                } else {
+//                    PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs)
+//                }
+//            }
+//            .navigationTitle("CLIP-Finder")
+//            
+//        }
+//        .onAppear {
+//            photoGalleryViewModel.requestPhotoLibraryAccess()
+//        }
+//        .onTapGesture {
+//            isTextFieldFocused = false
+//        }
+//    }
+//}
 
 struct SearchBar: View {
     @Binding var text: String
@@ -106,13 +433,32 @@ struct SearchBar: View {
     }
 }
 
+//struct PhotoGalleryView: View {
+//    let assets: [PHAsset]
+//    let topPhotoIDs: [String]
+//
+//    var body: some View {
+//        ScrollView {
+//            LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 4), spacing: 0.1) {
+//                ForEach(topPhotoIDs, id: \.self) { photoID in
+//                    if let asset = assets.first(where: { $0.localIdentifier == photoID }) {
+//                        PhotoGridItemView(asset: asset)
+//                    }
+//                }
+//                .padding(0)
+//            }
+//        }
+//    }
+//}
+
 struct PhotoGalleryView: View {
     let assets: [PHAsset]
     let topPhotoIDs: [String]
+    let columns: Int
 
     var body: some View {
         ScrollView {
-            LazyVGrid(columns: Array(repeating: .init(.flexible()), count: 4), spacing: 0.1) {
+            LazyVGrid(columns: Array(repeating: .init(.flexible()), count: columns), spacing: 0.1) {
                 ForEach(topPhotoIDs, id: \.self) { photoID in
                     if let asset = assets.first(where: { $0.localIdentifier == photoID }) {
                         PhotoGridItemView(asset: asset)
