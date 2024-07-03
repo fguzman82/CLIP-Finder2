@@ -131,34 +131,6 @@ public func AsyncProfileModel(_ title: String, operation: @escaping (@escaping (
 //    print("Operación completada en \(time) ms")
 //}
 
-import Foundation
-
-//struct PerformanceStats {
-//    static var shared = PerformanceStats()
-//    
-//    private init() {}
-//    
-//    var clipMCIImagePredictionTimes: [Double] = []
-//    var clipTextPredictionTimes: [Double] = []
-//    
-//    mutating func addClipMCIImagePredictionTime(_ time: Double) {
-//        clipMCIImagePredictionTimes.append(time)
-//    }
-//    
-//    mutating func addClipTextPredictionTime(_ time: Double) {
-//        clipTextPredictionTimes.append(time)
-//    }
-//    
-//    func averageClipMCIImagePredictionTime() -> Double {
-//        guard !clipMCIImagePredictionTimes.isEmpty else { return 0 }
-//        return clipMCIImagePredictionTimes.reduce(0, +) / Double(clipMCIImagePredictionTimes.count)
-//    }
-//    
-//    func averageClipTextPredictionTime() -> Double {
-//        guard !clipTextPredictionTimes.isEmpty else { return 0 }
-//        return clipTextPredictionTimes.reduce(0, +) / Double(clipTextPredictionTimes.count)
-//    }
-//}
 
 class PerformanceStats: ObservableObject {
     static let shared = PerformanceStats()

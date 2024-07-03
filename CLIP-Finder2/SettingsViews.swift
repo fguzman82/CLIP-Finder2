@@ -116,8 +116,9 @@ struct SettingsView: View {
                     
                     if !modelProfiler.profileResultsImage.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Clip Image Model")
+                            Text("CLIP Image Model")
                                 .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .center)
                             
                             createTableView(for: .image)
                         }
@@ -125,8 +126,9 @@ struct SettingsView: View {
                     
                     if !modelProfiler.profileResultsText.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
-                            Text("Clip Text Model")
+                            Text("CLIP Text Model")
                                 .font(.headline)
+                                .frame(maxWidth: .infinity, alignment: .center)
                             
                             createTableView(for: .text)
                         }
@@ -142,7 +144,7 @@ struct SettingsView: View {
             .alert(isPresented: $showingAlert) {
                 Alert(
                     title: Text("Clear Cache"),
-                    message: Text("Are you sure you want to clear the photo preprocessing cache? This action cannot be undone."),
+                    message: Text("Clearing the cache involves reprocessing the photo gallery"),
                     primaryButton: .destructive(Text("Clear")) {
                         photoGalleryViewModel.reprocessPhotos()
                         presentationMode.wrappedValue.dismiss()
