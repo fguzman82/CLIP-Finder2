@@ -1,6 +1,7 @@
 # CLIP-Finder
 
- https://github.com/fguzman82/CLIP-Finder2/assets/34175524/2c11240a-a64a-43e0-963a-0a77d966e6e9
+
+https://github.com/fguzman82/CLIP-Finder2/assets/34175524/11db9744-506a-48b5-9374-42cd99c593dc
 
 
 CLIP-Profiler is an iOS application that leverages advanced AI models to perform image similarity searches. It utilizes two CoreML models optimized for the Apple Neural Engine, ensuring efficient on-device processing. The app allows users to search for images from the photo gallery using natural language descriptions or live camera input. All searches are completely offline, providing a user-friendly interface for searching and profiling while taking full advantage of Apple's cutting-edge AI capabilities.
