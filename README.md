@@ -1,10 +1,6 @@
 <div align="center">
-    <a href="https://runlocal.ai">
-        <img src="./Assets.xcassets/AppIcon.appiconset/CLIPFinderIconH-1024.png" width="300" style="border: none;">
-    </a>
+        <img src="CLIP-Finder2/Assets.xcassets/AppIcon.appiconset/CLIPFinderIconH-1024.png" width="100" style="border: none;">
 </div>
-<br>
-
 
 <h1 align="center">
    CLIP-Finder
