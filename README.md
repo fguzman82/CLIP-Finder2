@@ -66,7 +66,9 @@ The Settings view provides two main functions:
 
 This is the view for the CoreMLProfiler built-in app.
 
-![IMG_2143](https://github.com/fguzman82/CLIP-Finder2/assets/34175524/5fa8341a-a3ad-44a4-986c-59171ac45ce6)
+<div align="center">
+<img width="300" src="https://github.com/fguzman82/CLIP-Finder2/assets/34175524/5fa8341a-a3ad-44a4-986c-59171ac45ce6" alt="IMG_2143">
+</div>
 
 
 ## Acknowledgments
