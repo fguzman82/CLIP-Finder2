@@ -83,9 +83,14 @@ CLIP-Profiler processes all data on-device, ensuring your photos and search quer
 
 [If applicable, provide information on how others can contribute to the project]
 
+## Acknowledgments
+
+This project is based on the architecture of the [MobileCLIP](https://github.com/apple/ml-mobileclip) project, which is licensed under the MIT License. We would like to extend our gratitude to the authors of the paper: Pavan Kumar Anasosalu Vasu, Hadi Pouransari, Fartash Faghri, Raviteja Vemulapalli, and Oncel Tuzel, for their valuable contributions.
+
 ## License
 
-[Specify the license under which the app is released]
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
+
 
 ## Contact
 
