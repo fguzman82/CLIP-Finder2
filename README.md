@@ -2,6 +2,15 @@
 
 CLIP-Profiler is an iOS application that leverages advanced AI models to perform image and text similarity searches. It utilizes two CoreML models optimized for the Apple Neural Engine, ensuring efficient on-device processing. The app provides a user-friendly interface for searching and profiling, making the most of Apple's cutting-edge AI capabilities.
 
+This project is based on Apple's [MobileCLIP](https://github.com/apple/ml-mobileclip) architecture. Details of the architecture can be found in the following [paper](https://arxiv.org/pdf/2311.17049). The selected subarchitecture is [MobileCLIP-S0](https://huggingface.co/apple/mobileclip_s0_timm), finding consistency with the latency times of the Image/Text encoders reported by the authors. The general architecture of the two approaches implemented in CLIP-Finder is presented below:
+
+<div align="center">
+  <img width="600" alt="Text Architecture" src="https://github.com/fguzman82/CLIP-Finder2/assets/34175524/fade6b3d-e40e-40a5-befa-eb78031ef236">
+  <img width="600" alt="Video Architecture" src="https://github.com/fguzman82/CLIP-Finder2/assets/34175524/8d6ac3d8-5567-4b37-9d66-1e1001ee86e2">
+</div>
+
+
+
 ## Features
 
 - Text-based image search
@@ -13,6 +22,8 @@ CLIP-Profiler is an iOS application that leverages advanced AI models to perform
 - Similarity calculation using dot product in MPSGraph
 - Model profiling for performance analysis across different compute units
 - Cache management for optimized performance
+- Tokenizer: Implementation in Swift based on the Tokenizer written in Python from [open_clip](https://github.com/mlfoundations/open_clip/blob/main/src/open_clip/tokenizer.py)
+
 
 ## Components
 
@@ -22,7 +33,7 @@ CLIP-Profiler is an iOS application that leverages advanced AI models to perform
 
 2. **Image Processing**:
    - Preprocessing: Utilizes MPSGraph for efficient GPU-based image preparation
-   - Postprocessing: Employs MPSGraph for similarity calculations using dot product
+   - Postprocessing: Employs MPSGraph for similarity calculations using dot product, and selects the photos with the highest similarity scores
 
 3. **User Interface**:
    - Main view for search operations
@@ -53,31 +64,11 @@ The Settings view provides two main functions:
 1. **Clear Cache**: Removes all preprocessed image data to free up storage space
 2. **Model Profiler**: Runs a performance analysis on both CoreML models across different computational units (CPU, GPU, Neural Engine, and combinations), allowing you to see the performance benefits of the Apple Neural Engine
 
+## Acknowledgments
 
-## Installation
-
-[Provide installation instructions here, e.g., TestFlight link or App Store availability]
-
-## Usage
-
-[Provide basic usage instructions here]
-
-## Troubleshooting
-
-[List common issues and their solutions]
-
-## Privacy
-
-CLIP-Profiler processes all data on-device, ensuring your photos and search queries remain private.
-
-## Contributing
-
-[If applicable, provide information on how others can contribute to the project]
+This project is based on the architecture of the [MobileCLIP](https://github.com/apple/ml-mobileclip), which is licensed under the MIT License. An acknowledgment is extended to the authors of the paper: Pavan Kumar Anasosalu Vasu, Hadi Pouransari, Fartash Faghri, Raviteja Vemulapalli, and Oncel Tuzel, for their valuable contributions.
 
 ## License
 
-[Specify the license under which the app is released]
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
-## Contact
-
-[Provide contact information or links for support and inquiries]
