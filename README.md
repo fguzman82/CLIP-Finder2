@@ -1,6 +1,19 @@
-# CLIP-Profiler
+<div align="center">
+        <img src="CLIP-Finder2/Assets.xcassets/AppIcon.appiconset/CLIPFinderIconH-1024.png" width="100" style="border: none;">
+</div>
 
-CLIP-Profiler is an iOS application that leverages advanced AI models to perform image and text similarity searches. It utilizes two CoreML models optimized for the Apple Neural Engine, ensuring efficient on-device processing. The app provides a user-friendly interface for searching and profiling, making the most of Apple's cutting-edge AI capabilities.
+<h1 align="center">
+   CLIP-Finder
+</h1>
+
+
+
+https://github.com/fguzman82/CLIP-Finder2/assets/34175524/d711f5d4-0629-483a-9e3a-ecc1b45a9b2f
+
+
+
+
+CLIP-Finder is an iOS application that leverages advanced AI models to perform image similarity searches. It utilizes two CoreML models optimized for the Apple Neural Engine, ensuring efficient on-device processing. The app allows users to search for images from the photo gallery using natural language descriptions or live camera input. All searches are completely offline, providing a user-friendly interface for searching and profiling while taking full advantage of Apple's cutting-edge AI capabilities.
 
 This project is based on Apple's [MobileCLIP](https://github.com/apple/ml-mobileclip) architecture. Details of the architecture can be found in the following [paper](https://arxiv.org/pdf/2311.17049). The selected subarchitecture is [MobileCLIP-S0](https://huggingface.co/apple/mobileclip_s0_timm), finding consistency with the latency times of the Image/Text encoders reported by the authors. The general architecture of the two approaches implemented in CLIP-Finder is presented below:
 
@@ -63,6 +76,13 @@ The Settings view provides two main functions:
 
 1. **Clear Cache**: Removes all preprocessed image data to free up storage space
 2. **Model Profiler**: Runs a performance analysis on both CoreML models across different computational units (CPU, GPU, Neural Engine, and combinations), allowing you to see the performance benefits of the Apple Neural Engine
+
+This is the view for the CoreMLProfiler built-in app.
+
+<div align="center">
+<img width="300" src="https://github.com/fguzman82/CLIP-Finder2/assets/34175524/5fa8341a-a3ad-44a4-986c-59171ac45ce6" alt="IMG_2143">
+</div>
+
 
 ## Acknowledgments
 
