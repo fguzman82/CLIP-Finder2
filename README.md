@@ -62,36 +62,11 @@ The Settings view provides two main functions:
 1. **Clear Cache**: Removes all preprocessed image data to free up storage space
 2. **Model Profiler**: Runs a performance analysis on both CoreML models across different computational units (CPU, GPU, Neural Engine, and combinations), allowing you to see the performance benefits of the Apple Neural Engine
 
-
-## Installation
-
-[Provide installation instructions here, e.g., TestFlight link or App Store availability]
-
-## Usage
-
-[Provide basic usage instructions here]
-
-## Troubleshooting
-
-[List common issues and their solutions]
-
-## Privacy
-
-CLIP-Profiler processes all data on-device, ensuring your photos and search queries remain private.
-
-## Contributing
-
-[If applicable, provide information on how others can contribute to the project]
-
 ## Acknowledgments
 
-This project is based on the architecture of the [MobileCLIP](https://github.com/apple/ml-mobileclip) project, which is licensed under the MIT License. We would like to extend our gratitude to the authors of the paper: Pavan Kumar Anasosalu Vasu, Hadi Pouransari, Fartash Faghri, Raviteja Vemulapalli, and Oncel Tuzel, for their valuable contributions.
+This project is based on the architecture of the [MobileCLIP](https://github.com/apple/ml-mobileclip), which is licensed under the MIT License. An acknowledgment is extended to the authors of the paper: Pavan Kumar Anasosalu Vasu, Hadi Pouransari, Fartash Faghri, Raviteja Vemulapalli, and Oncel Tuzel, for their valuable contributions.
 
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for more details.
 
-
-## Contact
-
-[Provide contact information or links for support and inquiries]
