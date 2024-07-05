@@ -15,6 +15,7 @@
 		1C0F0CC92C2E03FF0007191B /* CLIPTextModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0F0CC82C2E03FF0007191B /* CLIPTextModel.swift */; };
 		1C0F0CCB2C2F12E40007191B /* CameraPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0F0CCA2C2F12E40007191B /* CameraPreviewView.swift */; };
 		1C0F0CCD2C2F13030007191B /* CameraManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C0F0CCC2C2F13030007191B /* CameraManager.swift */; };
+		1C26D80C2C38185A00F7E24B /* CLIPImageModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C26D80B2C38185A00F7E24B /* CLIPImageModel.swift */; };
 		1C62E8DD2C2A206700C1C637 /* CLIP_Finder2App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C62E8DC2C2A206700C1C637 /* CLIP_Finder2App.swift */; };
 		1C62E8DF2C2A206700C1C637 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C62E8DE2C2A206700C1C637 /* ContentView.swift */; };
 		1C62E8E12C2A206900C1C637 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1C62E8E02C2A206900C1C637 /* Assets.xcassets */; };
@@ -22,7 +23,6 @@
 		1C62E8EB2C2A20B600C1C637 /* PhotoGalleryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C62E8EA2C2A20B600C1C637 /* PhotoGalleryViewModel.swift */; };
 		1C62E8EE2C2A211000C1C637 /* PhotosDB.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1C62E8EC2C2A211000C1C637 /* PhotosDB.xcdatamodeld */; };
 		1C62E8F02C2A219D00C1C637 /* Preprocessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C62E8EF2C2A219D00C1C637 /* Preprocessing.swift */; };
-		1C62E8F22C2A220A00C1C637 /* Datamodel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C62E8F12C2A220A00C1C637 /* Datamodel.swift */; };
 		1C62E8F42C2A221F00C1C637 /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C62E8F32C2A221F00C1C637 /* CoreDataManager.swift */; };
 		1C62E8F82C2A225E00C1C637 /* ImageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C62E8F72C2A225E00C1C637 /* ImageViewController.swift */; };
 		1C62E8FC2C2A238500C1C637 /* MLMultiArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C62E8FB2C2A238500C1C637 /* MLMultiArrayExtension.swift */; };
@@ -42,6 +42,7 @@
 		1C0F0CC82C2E03FF0007191B /* CLIPTextModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIPTextModel.swift; sourceTree = "<group>"; };
 		1C0F0CCA2C2F12E40007191B /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreviewView.swift; sourceTree = "<group>"; };
 		1C0F0CCC2C2F13030007191B /* CameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
+		1C26D80B2C38185A00F7E24B /* CLIPImageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIPImageModel.swift; sourceTree = "<group>"; };
 		1C62E8D92C2A206700C1C637 /* CLIP-Finder2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CLIP-Finder2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1C62E8DC2C2A206700C1C637 /* CLIP_Finder2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIP_Finder2App.swift; sourceTree = "<group>"; };
 		1C62E8DE2C2A206700C1C637 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -50,7 +51,6 @@
 		1C62E8EA2C2A20B600C1C637 /* PhotoGalleryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGalleryViewModel.swift; sourceTree = "<group>"; };
 		1C62E8ED2C2A211000C1C637 /* PhotosDB.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = PhotosDB.xcdatamodel; sourceTree = "<group>"; };
 		1C62E8EF2C2A219D00C1C637 /* Preprocessing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preprocessing.swift; sourceTree = "<group>"; };
-		1C62E8F12C2A220A00C1C637 /* Datamodel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Datamodel.swift; sourceTree = "<group>"; };
 		1C62E8F32C2A221F00C1C637 /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		1C62E8F72C2A225E00C1C637 /* ImageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageViewController.swift; sourceTree = "<group>"; };
 		1C62E8FB2C2A238500C1C637 /* MLMultiArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLMultiArrayExtension.swift; sourceTree = "<group>"; };
@@ -104,7 +104,7 @@
 				1C0F0CCC2C2F13030007191B /* CameraManager.swift */,
 				1C62E9122C2DBFB600C1C637 /* bpe_simple_vocab_16e6.txt */,
 				1C62E8EF2C2A219D00C1C637 /* Preprocessing.swift */,
-				1C62E8F12C2A220A00C1C637 /* Datamodel.swift */,
+				1C26D80B2C38185A00F7E24B /* CLIPImageModel.swift */,
 				1C62E8F32C2A221F00C1C637 /* CoreDataManager.swift */,
 				1C62E8FF2C2A259F00C1C637 /* AppDelegate.swift */,
 				1C62E8FD2C2A24C200C1C637 /* MLMultiArrayTransformer.swift */,
@@ -209,6 +209,7 @@
 				1C62E9082C2B556400C1C637 /* MPSGraphPostProcessing.swift in Sources */,
 				1C0F0CC92C2E03FF0007191B /* CLIPTextModel.swift in Sources */,
 				1C0105DD2C341F66005870B5 /* clip_mci_image.mlpackage in Sources */,
+				1C26D80C2C38185A00F7E24B /* CLIPImageModel.swift in Sources */,
 				1C0105E32C347E05005870B5 /* CoreMLProfiler.swift in Sources */,
 				1C62E8F02C2A219D00C1C637 /* Preprocessing.swift in Sources */,
 				1C62E8EE2C2A211000C1C637 /* PhotosDB.xcdatamodeld in Sources */,
@@ -217,7 +218,6 @@
 				1C62E8DF2C2A206700C1C637 /* ContentView.swift in Sources */,
 				1C62E8FE2C2A24C200C1C637 /* MLMultiArrayTransformer.swift in Sources */,
 				1C0105D22C323AE1005870B5 /* SettingsViews.swift in Sources */,
-				1C62E8F22C2A220A00C1C637 /* Datamodel.swift in Sources */,
 				1C62E9002C2A259F00C1C637 /* AppDelegate.swift in Sources */,
 				1C62E8EB2C2A20B600C1C637 /* PhotoGalleryViewModel.swift in Sources */,
 				1C62E8FC2C2A238500C1C637 /* MLMultiArrayExtension.swift in Sources */,
@@ -359,6 +359,7 @@
 				DEVELOPMENT_TEAM = 4N8Y4W9QWP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Capture Video for Gallery Search by using Video";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to your photo library to display and process photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -391,6 +392,7 @@
 				DEVELOPMENT_TEAM = 4N8Y4W9QWP;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSCameraUsageDescription = "Capture Video for Gallery Search by using Video";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app requires access to your photo library to display and process photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

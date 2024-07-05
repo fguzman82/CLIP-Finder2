@@ -9,18 +9,7 @@ import MetalPerformanceShadersGraph
 import CoreML
 
 class MPSGraphExtensions {
-//    static func generateTextFeatures(device: MTLDevice) -> MPSNDArray {
-//        let graph = MPSGraph()
-//        let constantValue = 1.0 / 512.0
-//        // Crear el MPSNDArray para textFeatures
-//        let textFeaturesDescriptor = MPSNDArrayDescriptor(dataType: .float16, shape: [1, 512] as [NSNumber])
-//        let textFeatures = MPSNDArray(device: device, descriptor: textFeaturesDescriptor)
-//        
-//        var values = [Float16](repeating: Float16(constantValue), count: 512)
-//        textFeatures.writeBytes(&values, strideBytes: nil)
-//        
-//        return textFeatures
-//    }
+
     static func convertTextFeaturesToMPSNDArray(textFeatures: MLMultiArray, device: MTLDevice) -> MPSNDArray {
         let descriptor = MPSNDArrayDescriptor(dataType: .float16, shape: [1, 512] as [NSNumber])
         let mpsArray = MPSNDArray(device: device, descriptor: descriptor)

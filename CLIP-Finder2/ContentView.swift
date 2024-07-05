@@ -235,59 +235,6 @@ struct PhotoGridItemView: View {
     }
 }
 
-//struct FullResolutionImageView: View {
-//    let asset: PHAsset
-//    @State private var image: UIImage?
-//    @State private var isLoading = true
-//    @Environment(\.presentationMode) var presentationMode
-//
-//    var body: some View {
-//        ZStack {
-//            if let image = image {
-//                Image(uiImage: image)
-//                    .resizable()
-//                    .aspectRatio(contentMode: .fit)
-//            } else if isLoading {
-//                ProgressView()
-//            } else {
-//                Text("Failed to load image")
-//            }
-//        }
-//        .navigationTitle("Full Resolution Image")
-//        .navigationBarTitleDisplayMode(.inline)
-//        .navigationBarBackButtonHidden(true)
-//        .navigationBarItems(leading: Button(action: {
-//            presentationMode.wrappedValue.dismiss()
-//        }) {
-//            HStack {
-//                Image(systemName: "chevron.left")
-//                Text("Back")
-//            }
-//        })
-//        .onAppear {
-//            loadFullResolutionImage()
-//        }
-//    }
-//    
-//    private func loadFullResolutionImage() {
-//        let manager = PHImageManager.default()
-//        let option = PHImageRequestOptions()
-//        option.deliveryMode = .highQualityFormat
-//        option.isSynchronous = false
-//        option.isNetworkAccessAllowed = true
-//        
-//        manager.requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: option) { image, info in
-//            DispatchQueue.main.async {
-//                if let image = image {
-//                    self.image = image
-//                }
-//                self.isLoading = false
-//            }
-//        }
-//    }
-//}
-
-
 struct FullResolutionImageView: View {
     let asset: PHAsset
     @State private var image: UIImage?
@@ -356,7 +303,6 @@ struct FullResolutionImageView: View {
         guard let image = self.image else { return }
         let activityViewController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
         
-        // Presentar el UIActivityViewController
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let rootViewController = windowScene.windows.first?.rootViewController {
             rootViewController.present(activityViewController, animated: true, completion: nil)

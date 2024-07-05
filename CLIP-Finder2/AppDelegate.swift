@@ -13,10 +13,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Registrar el transformador personalizado
         ValueTransformer.setValueTransformer(MLMultiArrayTransformer(), forName: NSValueTransformerName("MLMultiArrayTransformer"))
         return true
     }
 
-    // Otros métodos del AppDelegate...
 }

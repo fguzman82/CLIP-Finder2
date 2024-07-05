@@ -13,7 +13,7 @@ import Vision
 class ModelProfiler: ObservableObject {
     static let shared = ModelProfiler()
     
-    private let dataModel = DataModel()
+    private let clipImageModel = CLIPImageModel()
     private let clipTextModel = CLIPTextModel()
     private let processingUnits: [MLComputeUnits] = [.all, .cpuOnly, .cpuAndGPU, .cpuAndNeuralEngine]
     public let processingUnitDescriptions = ["All", "CPU Only", "CPU + GPU", "CPU + ANE"]
@@ -31,8 +31,8 @@ class ModelProfiler: ObservableObject {
     }
     
     private func profileForUnit(_ unit: MLComputeUnits, atIndex index: Int) async {
-        dataModel.setProcessingUnit(unit)
-        await dataModel.reloadModel()
+        clipImageModel.setProcessingUnit(unit)
+        await clipImageModel.reloadModel()
         
         guard let dummyInput = createDummyWhitePixelBuffer(width: 256, height: 256) else {
             print("Failed to create dummy input")
@@ -44,7 +44,7 @@ class ModelProfiler: ObservableObject {
                 await AsyncProfileModel("CLIP MCI Image Prediction") { done in
                     Task {
                         do {
-                            if let _ = try await self.dataModel.performInference(dummyInput) {
+                            if let _ = try await self.clipImageModel.performInference(dummyInput) {
                                 done()
                             } else {
                                 print("Inference returned nil")

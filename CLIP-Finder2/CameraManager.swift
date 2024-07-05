@@ -18,30 +18,15 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
     var onFrameCaptured: ((CIImage) -> Void)?
 //    private var isPaused: Bool = false
 //    var lastCapturedFrame: CIImage?
+    private var lastProcessingTime: Date = Date.distantPast
+    private let processingInterval: TimeInterval = 0.2
 
     override init() {
         super.init()
         setupSession()
     }
     
-//    func pauseCapture() {
-//        isPaused = true
-//    }
-//    
-//    func resumeCapture() {
-//        isPaused = false
-//    }
-    
-//    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-//        guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-//        let ciImage = CIImage(cvImageBuffer: imageBuffer)
-//        lastCapturedFrame = ciImage
-//        
-//        DispatchQueue.main.async { [weak self] in
-//            self?.onFrameCaptured?(ciImage)
-//        }
-//    }
-    
+
     @objc func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
             guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
             let ciImage = CIImage(cvImageBuffer: imageBuffer)
@@ -49,6 +34,20 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
                 self?.onFrameCaptured?(ciImage)
             }
         }
+    
+//    @objc func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+//            let currentTime = Date()
+//            guard currentTime.timeIntervalSince(lastProcessingTime) >= processingInterval else {
+//                return
+//            }
+//            
+//            guard let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+//            let ciImage = CIImage(cvImageBuffer: imageBuffer)
+//            DispatchQueue.main.async { [weak self] in
+//                self?.onFrameCaptured?(ciImage)
+//                self?.lastProcessingTime = currentTime
+//            }
+//        }
 
     func setupSession() {
         session.sessionPreset = .high
@@ -105,28 +104,6 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
         }
     }
 
-//    func switchCamera() {
-//        guard let currentInput = input else { return }
-//        session.beginConfiguration()
-//        session.removeInput(currentInput)
-//
-//        if currentInput.device.position == .back {
-//            camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
-//        } else {
-//            camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
-//        }
-//
-//        do {
-//            input = try AVCaptureDeviceInput(device: camera!)
-//            if session.canAddInput(input!) {
-//                session.addInput(input!)
-//            }
-//        } catch {
-//            print("Error switching camera: \(error.localizedDescription)")
-//        }
-//
-//        session.commitConfiguration()
-//    }
     func switchCamera() {
         guard let currentInput = input else { return }
         session.beginConfiguration()
