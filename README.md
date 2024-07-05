@@ -1,4 +1,14 @@
-# CLIP-Finder
+<div align="center">
+    <a href="https://runlocal.ai">
+        <img src="./Assets.xcassets/AppIcon.appiconset/CLIPFinderIconH-1024.png" width="300" style="border: none;">
+    </a>
+</div>
+<br>
+
+
+<h1 align="center">
+   CLIP-Finder
+</h1>
 
 
 
