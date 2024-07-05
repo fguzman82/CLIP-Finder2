@@ -2,6 +2,11 @@
 
 CLIP-Profiler is an iOS application that leverages advanced AI models to perform image and text similarity searches. It utilizes two CoreML models optimized for the Apple Neural Engine, ensuring efficient on-device processing. The app provides a user-friendly interface for searching and profiling, making the most of Apple's cutting-edge AI capabilities.
 
+<img width="500" alt="Text Architecture" src="https://github.com/fguzman82/CLIP-Finder2/assets/34175524/fade6b3d-e40e-40a5-befa-eb78031ef236">
+<img width="500" alt="Video Architecture" src="https://github.com/fguzman82/CLIP-Finder2/assets/34175524/8d6ac3d8-5567-4b37-9d66-1e1001ee86e2">
+
+
+
 ## Features
 
 - Text-based image search
@@ -13,6 +18,8 @@ CLIP-Profiler is an iOS application that leverages advanced AI models to perform
 - Similarity calculation using dot product in MPSGraph
 - Model profiling for performance analysis across different compute units
 - Cache management for optimized performance
+- Tokenizer: Implementation in Swift based on the Tokenizer written in Python from [open_clip](https://github.com/mlfoundations/open_clip/blob/main/src/open_clip/tokenizer.py)
+
 
 ## Components
 
@@ -22,7 +29,7 @@ CLIP-Profiler is an iOS application that leverages advanced AI models to perform
 
 2. **Image Processing**:
    - Preprocessing: Utilizes MPSGraph for efficient GPU-based image preparation
-   - Postprocessing: Employs MPSGraph for similarity calculations using dot product
+   - Postprocessing: Employs MPSGraph for similarity calculations using dot product, and selects the photos with the highest similarity scores
 
 3. **User Interface**:
    - Main view for search operations
