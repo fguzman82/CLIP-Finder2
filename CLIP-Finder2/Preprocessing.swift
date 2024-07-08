@@ -28,7 +28,9 @@ class Preprocessing {
     static func preprocessImage(_ image: UIImage, targetSize: CGSize) -> CVPixelBuffer? {
         guard let inputTexture = loadTexture(from: image),
               let outputTexture = makeTexture(descriptor: descriptor(for: targetSize)) else {
+            #if DEBUG
             print("Failed to create textures")
+            #endif
             return nil
         }
 
@@ -79,7 +81,9 @@ class Preprocessing {
         let status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32BGRA, pixelBufferOptions as CFDictionary, &pixelBuffer)
         
         guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
+            #if DEBUG
             print("Failed to create CVPixelBuffer")
+            #endif
             return nil
         }
         

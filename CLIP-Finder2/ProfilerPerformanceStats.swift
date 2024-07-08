@@ -14,9 +14,9 @@ public func profile<T>(_ title: String, operation: () -> T) -> T {
     
     let nanoTime = endTime.uptimeNanoseconds - startTime.uptimeNanoseconds
     let timeInterval = Double(nanoTime) / 1_000_000
-    
+    #if DEBUG
     print("\(title) - Execution time: \(timeInterval) ms")
-    
+    #endif
     return result
 }
 
@@ -44,8 +44,9 @@ public func profileAsync(_ title: String, operation: (@escaping () -> Void) -> V
         let endTime = DispatchTime.now()
         let nanoTime = endTime.uptimeNanoseconds - startTime.uptimeNanoseconds
         let timeInterval = Double(nanoTime) / 1_000_000
-        
+        #if DEBUG
         print("\(title) - Execution time: \(timeInterval) ms")
+        #endif
         completion(timeInterval)
     }
 }

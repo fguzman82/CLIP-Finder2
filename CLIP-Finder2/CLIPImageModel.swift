@@ -24,7 +24,9 @@ final class CLIPImageModel {
             do {
                 try await loadModel()
             } catch {
+                #if DEBUG
                 print("Failed to load model: \(error)")
+                #endif
             }
         }
     }
@@ -37,19 +39,23 @@ final class CLIPImageModel {
         do {
             try await loadModel()
         } catch {
+            #if DEBUG
             print("Failed to reload model: \(error)")
+            #endif
         }
     }
     
     private func loadModel() async throws {
         guard let modelURL = Bundle.main.url(forResource: "clip_mci_image", withExtension: "mlmodelc") else {
-            print("Current bundle URL: \(Bundle.main.bundleURL)")
+//            print("Current bundle URL: \(Bundle.main.bundleURL)")
             throw DataModelError.modelFileNotFound
         }
         
 //        let compiledURL = try await MLModel.compileModel(at: modelURL)
         model = try await MLModel.load(contentsOf: modelURL, configuration: configuration)
-        print("Model loaded successfully.")
+        #if DEBUG
+        print("CLIP image model loaded successfully.")
+        #endif
     }
     
 
@@ -69,7 +75,9 @@ final class CLIPImageModel {
                 throw NSError(domain: "DataModel", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to retrieve MLMultiArray from prediction"])
             }
         } catch {
+            #if DEBUG
             print("Failed to perform inference: \(error)")
+            #endif
             throw error
         }
     }

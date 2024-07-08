@@ -111,9 +111,13 @@ class PhotoGalleryViewModel: ObservableObject {
         AVCaptureDevice.requestAccess(for: .video) { granted in
             DispatchQueue.main.async {
                 if granted {
+                    #if DEBUG
                     print("Camera access granted")
+                    #endif
                 } else {
+                    #if DEBUG
                     print("Camera access denied")
+                    #endif
                 }
                 completion(granted)
             }
@@ -144,7 +148,9 @@ class PhotoGalleryViewModel: ObservableObject {
 
     private func performSearch(_ searchText: String) {
         guard let tokenizer = customTokenizer else {
+            #if DEBUG
             print("Tokenizer not initialized")
+            #endif
             return
         }
 
@@ -158,20 +164,39 @@ class PhotoGalleryViewModel: ObservableObject {
                         self.topPhotoIDs = topIDs
                     }
                 } else {
+                    #if DEBUG
                     print("Failed to get text features from CLIP text model")
+                    #endif
                 }
             } catch {
+                #if DEBUG
                 print("Error performing CLIP text inference: \(error)")
+                #endif
             }
         }
     }
     
     func performImageSearch(from ciImage: CIImage) async {
-        guard isCameraActive else { return }
-        guard let cgImage = CIContext().createCGImage(ciImage, from: ciImage.extent) else { return }
+        guard isCameraActive else {
+            #if DEBUG
+            print("Camera is not active, skipping image search")
+            #endif
+            return
+        }
+        guard let cgImage = CIContext().createCGImage(ciImage, from: ciImage.extent) else {
+            #if DEBUG
+            print("Failed to create CGImage from CIImage")
+            #endif
+            return
+        }
         let uiImage = UIImage(cgImage: cgImage)
         
-        guard let pixelBuffer = Preprocessing.preprocessImage(uiImage, targetSize: CGSize(width: 256, height: 256)) else { return }
+        guard let pixelBuffer = Preprocessing.preprocessImage(uiImage, targetSize: CGSize(width: 256, height: 256)) else {
+            #if DEBUG
+            print("Failed to preprocess image")
+            #endif
+            return
+        }
         
         do {
             if let imageFeatures = try await clipImageModel.performInference(pixelBuffer) {
@@ -180,10 +205,14 @@ class PhotoGalleryViewModel: ObservableObject {
                     self.topPhotoIDs = topIDs
                 }
             } else {
-                print("Inference returned nil.")
+                #if DEBUG
+                print("Clip Image Inference returned nil.")
+                #endif
             }
         } catch {
+            #if DEBUG
             print("Error performing inference: \(error)")
+            #endif
         }
     }
 
@@ -193,7 +222,9 @@ class PhotoGalleryViewModel: ObservableObject {
             if status == .authorized {
                 self.fetchPhotos()
             } else {
+                #if DEBUG
                 print("Photo library access denied.")
+                #endif
             }
         }
     }
@@ -215,7 +246,9 @@ class PhotoGalleryViewModel: ObservableObject {
                         done()
                     }
                 } completion: { time in
+                    #if DEBUG
                     print("Process and cache completted in \(time) ms")
+                    #endif
                 }
             }
         }
@@ -271,13 +304,25 @@ class PhotoGalleryViewModel: ObservableObject {
                                     if let vector = try await self.clipImageModel.performInference(pixelBufferCopy) {
                                         CoreDataManager.shared.saveVector(vector, for: identifier, in: backgroundContext)
                                     } else {
-                                        print("Inference returned nil for asset \(identifier)")
+                                        let error = NSError(domain: "CLIPImageModel",
+                                                            code: 1,
+                                                            userInfo: [NSLocalizedDescriptionKey: "Inference returned nil for asset \(identifier)"])
+                                        throw error
                                     }
                                     countQueue.sync {
                                         localProcessedCount += 1
                                     }
                                 } catch {
-                                    print("Failed to perform inference: \(error)")
+                                    if let nsError = error as NSError? {
+                                        #if DEBUG
+                                        print("Error performing inference: \(nsError.localizedDescription)")
+                                        print("Error domain: \(nsError.domain), code: \(nsError.code)")
+                                        #endif
+                                    } else {
+                                        #if DEBUG
+                                        print("Unknown error occurred: \(error)")
+                                        #endif
+                                    }
                                     countQueue.sync {
                                         localProcessedCount += 1
                                     }
@@ -319,56 +364,15 @@ class PhotoGalleryViewModel: ObservableObject {
                         done()
                     }
                 } completion: { time in
-                    print("Process and cache completted in \(time) ms")
+                    #if DEBUG
+                    print("Process and cache completed in \(time) ms")
                     print("Avg CLIP MCI Image Prediction Time: \(PerformanceStats.shared.averageClipMCIImagePredictionTime()) ms")
                     print("Number of samples: \(PerformanceStats.shared.clipMCIImagePredictionTimes.count)")
+                    #endif
                 }
             }
             
         }
-    }
-    
-    private func createDummyWhitePixelBuffer(width: Int = 256, height: Int = 256) -> CVPixelBuffer? {
-        var pixelBuffer: CVPixelBuffer?
-        let attributes = [
-            kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue,
-            kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue,
-            kCVPixelBufferMetalCompatibilityKey: kCFBooleanTrue
-        ] as CFDictionary
-        
-        let status = CVPixelBufferCreate(kCFAllocatorDefault,
-                                         width,
-                                         height,
-                                         kCVPixelFormatType_32BGRA,
-                                         attributes,
-                                         &pixelBuffer)
-        
-        guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
-            print("Failed to create CVPixelBuffer")
-            return nil
-        }
-        
-        CVPixelBufferLockBaseAddress(buffer, CVPixelBufferLockFlags(rawValue: 0))
-        let pixelData = CVPixelBufferGetBaseAddress(buffer)
-        
-        let rgbColorSpace = CGColorSpaceCreateDeviceRGB()
-        guard let context = CGContext(data: pixelData,
-                                      width: width,
-                                      height: height,
-                                      bitsPerComponent: 8,
-                                      bytesPerRow: CVPixelBufferGetBytesPerRow(buffer),
-                                      space: rgbColorSpace,
-                                      bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue) else {
-            print("Failed to create CGContext")
-            return nil
-        }
-        
-        context.setFillColor(red: 1, green: 1, blue: 1, alpha: 1)
-        context.fill(CGRect(x: 0, y: 0, width: width, height: height))
-        
-        CVPixelBufferUnlockBaseAddress(buffer, CVPixelBufferLockFlags(rawValue: 0))
-        
-        return buffer
     }
     
     private func calculateAndPrintTopPhotoIDs(textFeatures: MLMultiArray) -> [String] {

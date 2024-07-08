@@ -59,7 +59,9 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
                 session.addInput(input!)
             }
         } catch {
+            #if DEBUG
             print("Error setting device input: \(error.localizedDescription)")
+            #endif
             return
         }
 
@@ -121,7 +123,9 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
                 session.addInput(input!)
             }
         } catch {
+            #if DEBUG
             print("Error switching camera: \(error.localizedDescription)")
+            #endif
         }
 
         session.commitConfiguration()
@@ -145,7 +149,9 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
             
             camera.unlockForConfiguration()
         } catch {
+            #if DEBUG
             print("Error configurando la cámara: \(error)")
+            #endif
         }
     }
     
@@ -167,7 +173,9 @@ class CameraManager: NSObject, ObservableObject, AVCaptureVideoDataOutputSampleB
             
             camera.unlockForConfiguration()
         } catch {
+            #if DEBUG
             print("Error al enfocar: \(error)")
+            #endif
         }
     }
 }

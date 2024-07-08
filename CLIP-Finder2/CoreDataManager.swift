@@ -52,7 +52,9 @@ class CoreDataManager {
                 
                 try context.save()
             } catch {
+                #if DEBUG
                 print("Failed to save vector: \(error)")
+                #endif
             }
         }
     }
@@ -67,7 +69,9 @@ class CoreDataManager {
                 let results = try context.fetch(fetchRequest)
                 result = results.first?.vectorData as? MLMultiArray
             } catch {
+                #if DEBUG
                 print("Failed to fetch vector: \(error)")
+                #endif
             }
         }
         return result
@@ -89,9 +93,13 @@ class CoreDataManager {
                 NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [self.viewContext])
                 
                 try context.save()
+                #if DEBUG
                 print("All data deleted successfully")
+                #endif
             } catch {
+                #if DEBUG
                 print("Failed to delete data: \(error)")
+                #endif
             }
         }
     }
@@ -103,7 +111,9 @@ class CoreDataManager {
                 try context.save()
             } catch {
                 let nsError = error as NSError
+                #if DEBUG
                 print("Unresolved error \(nsError), \(nsError.userInfo)")
+                #endif
             }
         }
     }
@@ -121,7 +131,9 @@ class CoreDataManager {
                     return (id: id, vector: vector)
                 }
             } catch {
+                #if DEBUG
                 print("Failed to fetch photo vectors: \(error)")
+                #endif
             }
         }
         

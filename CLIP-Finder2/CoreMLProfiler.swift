@@ -35,7 +35,9 @@ class ModelProfiler: ObservableObject {
         await clipImageModel.reloadModel()
         
         guard let dummyInput = createDummyWhitePixelBuffer(width: 256, height: 256) else {
+            #if DEBUG
             print("Failed to create dummy input")
+            #endif
             return
         }
         
@@ -47,11 +49,15 @@ class ModelProfiler: ObservableObject {
                             if let _ = try await self.clipImageModel.performInference(dummyInput) {
                                 done()
                             } else {
+                                #if DEBUG
                                 print("Inference returned nil")
+                                #endif
                                 done()
                             }
                         } catch {
+                            #if DEBUG
                             print("Failed to perform inference: \(error)")
+                            #endif
                             done()
                         }
                     }
@@ -79,11 +85,15 @@ class ModelProfiler: ObservableObject {
                             if let _ = try await self.clipTextModel.performInference(dummyInput) {
                                 done()
                             } else {
+                                #if DEBUG
                                 print("Text inference returned nil")
+                                #endif
                                 done()
                             }
                         } catch {
+                            #if DEBUG
                             print("Failed to perform text inference: \(error)")
+                            #endif
                             done()
                         }
                     }
@@ -113,7 +123,9 @@ class ModelProfiler: ObservableObject {
                                          &pixelBuffer)
         
         guard status == kCVReturnSuccess, let buffer = pixelBuffer else {
+            #if DEBUG
             print("Failed to create CVPixelBuffer")
+            #endif
             return nil
         }
         
@@ -128,7 +140,9 @@ class ModelProfiler: ObservableObject {
                                       bytesPerRow: CVPixelBufferGetBytesPerRow(buffer),
                                       space: rgbColorSpace,
                                       bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue) else {
+            #if DEBUG
             print("Failed to create CGContext")
+            #endif
             return nil
         }
         

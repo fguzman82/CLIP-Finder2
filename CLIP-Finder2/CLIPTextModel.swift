@@ -26,7 +26,9 @@ final class CLIPTextModel {
             do {
                 try await loadModel()
             } catch {
+                #if DEBUG
                 print("Failed to load CLIP text model: \(error)")
+                #endif
             }
         }
     }
@@ -39,18 +41,21 @@ final class CLIPTextModel {
         do {
             try await loadModel()
         } catch {
+            #if DEBUG
             print("Failed to reload CLIP text model: \(error)")
+            #endif
         }
     }
     
     private func loadModel() async throws {
         guard let modelURL = Bundle.main.url(forResource: "clip_text", withExtension: "mlmodelc") else {
-            print("Current bundle URL: \(Bundle.main.bundleURL)")
             throw CLIPTextModelError.modelFileNotFound
         }
         
         model = try await MLModel.load(contentsOf: modelURL, configuration: configuration)
+        #if DEBUG
         print("CLIP text model loaded successfully.")
+        #endif
     }
     
     func performInference(_ tokens: [Int32]) async throws -> MLMultiArray? {
@@ -74,7 +79,9 @@ final class CLIPTextModel {
                 throw CLIPTextModelError.predictionFailed
             }
         } catch {
+            #if DEBUG
             print("Failed to perform CLIP text inference: \(error)")
+            #endif
             throw error
         }
     }

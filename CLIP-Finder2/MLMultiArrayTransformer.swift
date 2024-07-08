@@ -26,7 +26,9 @@ class MLMultiArrayTransformer: ValueTransformer {
             let data = try NSKeyedArchiver.archivedData(withRootObject: multiArray, requiringSecureCoding: true)
             return data
         } catch {
+            #if DEBUG
             print("Failed to transform MLMultiArray to Data: \(error)")
+            #endif
             return nil
         }
     }
@@ -40,7 +42,9 @@ class MLMultiArrayTransformer: ValueTransformer {
             let multiArray = try NSKeyedUnarchiver.unarchivedObject(ofClass: MLMultiArray.self, from: data)
             return multiArray
         } catch {
+            #if DEBUG
             print("Failed to reverse transform Data to MLMultiArray: \(error)")
+            #endif
             return nil
         }
     }
