@@ -1,5 +1,5 @@
 <div align="center">
-        <img src="CLIP-Finder2/Assets.xcassets/AppIcon.appiconset/CLIPFinderIconH-1024.png" width="100" style="border: none;">
+        <img src="CLIP-Finder2/Assets.xcassets/AppIcon.appiconset/CLIPFinderIcon_low-1024.png" width="100" style="border: none;">
 </div>
 
 <h1 align="center">
