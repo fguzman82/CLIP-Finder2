@@ -21,8 +21,11 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             GeometryReader { geometry in
-                ZStack {
-                    VStack {
+                VStack {
+                    if photoGalleryViewModel.isGalleryEmpty {
+                        Text("Your photo gallery is empty. Add some photos to use CLIP-Finder.")
+                        .padding()
+                    } else {
                         HStack {
                             TextField("Enter search text", text: $searchText)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -92,10 +95,8 @@ struct ContentView: View {
                                 .padding()
                             }
                         }
-                        
                     }
                     
-
                 }
             }
             .navigationTitle("CLIP-Finder")

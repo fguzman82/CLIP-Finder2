@@ -61,7 +61,7 @@ final class CLIPImageModel {
 
     func performInference(_ pixelBuffer: CVPixelBuffer) async throws -> MLMultiArray? {
         guard let model = model else {
-            throw NSError(domain: "DataModel", code: 2, userInfo: [NSLocalizedDescriptionKey: "Model is not loaded"])
+            throw NSError(domain: "ClipImageModel", code: 2, userInfo: [NSLocalizedDescriptionKey: "Model is not loaded"])
         }
         
         let input = InputFeatureProvider(pixelBuffer: pixelBuffer)
@@ -72,15 +72,46 @@ final class CLIPImageModel {
             if let multiArray = outputFeatures.featureValue(for: "var_1259")?.multiArrayValue {
                 return multiArray
             } else {
-                throw NSError(domain: "DataModel", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to retrieve MLMultiArray from prediction"])
+                throw NSError(domain: "ClipImageModel", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to retrieve MLMultiArray from prediction"])
             }
         } catch {
             #if DEBUG
-            print("Failed to perform inference: \(error)")
+            print("ClipImageModel: Failed to perform inference: \(error)")
             #endif
             throw error
         }
     }
+    
+    func performInferenceSync(_ pixelBuffer: CVPixelBuffer) -> MLMultiArray? {
+        guard let model else {
+            #if DEBUG
+            print("ClipImageModel is not loaded.")
+            #endif
+            return nil
+        }
+
+        let input = InputFeatureProvider(pixelBuffer: pixelBuffer)
+        do {
+            let outputFeatures = try model.prediction(from: input)
+
+            if let multiArray = outputFeatures.featureValue(for: "var_1259")?.multiArrayValue {
+                return multiArray
+            }
+            else {
+                #if DEBUG
+                print("ClipImageModel: Failed to retrieve MLMultiArray.")
+                #endif
+                return nil
+            }
+        } catch {
+            #if DEBUG
+            print("ClipImageModel: Failed to perform inference: \(error)")
+            #endif
+            return nil
+        }
+
+    }
+
 
 }
 

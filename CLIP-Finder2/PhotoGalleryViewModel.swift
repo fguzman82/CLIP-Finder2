@@ -18,6 +18,7 @@ import CoreImage
 class PhotoGalleryViewModel: ObservableObject {
     @Published var assets: [PHAsset] = []
     @Published var topPhotoIDs: [String] = []
+    @Published var isGalleryEmpty: Bool = true
     
     private var customTokenizer: CLIPTokenizer?
     private var clipTextModel: CLIPTextModel
@@ -31,9 +32,11 @@ class PhotoGalleryViewModel: ObservableObject {
     @Published var processedPhotosCount: Int = 0
     @Published var totalPhotosCount: Int = 0
     @Published var isProcessing: Bool = false
+    @Published var useAsyncImageSearch: Bool = false
+    private var wasPlayingBeforeTurbo: Bool = false
     
     private var updateTimer: Timer?
-
+    
     
     init() {
         self.cameraManager = CameraManager()
@@ -46,10 +49,10 @@ class PhotoGalleryViewModel: ObservableObject {
     private func setupCameraManager() {
         cameraManager.onFrameCaptured = { [weak self] ciImage in
             guard let self = self, self.isCameraActive, !self.isPaused else { return }
-//            self.performImageSearch(from: ciImage)
-            Task {
-                await self.performImageSearch(from: ciImage)
-            }
+            self.performImageSearch(from: ciImage)
+//            Task {
+//                await self.performImageSearch(from: ciImage)
+//            }
             
             self.onFrameCaptured?(ciImage)
         }
@@ -84,6 +87,23 @@ class PhotoGalleryViewModel: ObservableObject {
         } else {
             cameraManager.resumeCapture()
         }
+    }
+    
+    func prepareTurboToggle() {
+        wasPlayingBeforeTurbo = !isPaused
+        if !isPaused {
+            togglePause()
+        }
+    }
+
+    func finalizeTurboToggle() {
+        if wasPlayingBeforeTurbo && isPaused {
+            togglePause()
+        }
+    }
+
+    func toggleTurboMode() {
+        useAsyncImageSearch.toggle()
     }
     
     func getCameraSession() -> AVCaptureSession {
@@ -123,6 +143,10 @@ class PhotoGalleryViewModel: ObservableObject {
             }
         }
     }
+    
+    private func updateGalleryStatus() {
+        isGalleryEmpty = assets.isEmpty
+    }
 
     private func setupTokenizer() {
         guard let bpePath = Bundle.main.path(forResource: "bpe_simple_vocab_16e6", ofType: "txt") else {
@@ -133,6 +157,17 @@ class PhotoGalleryViewModel: ObservableObject {
     
     func processTextSearch(_ searchText: String) {
         searchTask?.cancel()
+        
+        guard !searchText.isEmpty else {
+            #if DEBUG
+            print("Search text is empty, skipping search")
+            #endif
+            
+            DispatchQueue.main.async {
+                self.topPhotoIDs = []
+            }
+            return
+        }
         
         searchTask = Task {
             
@@ -147,13 +182,20 @@ class PhotoGalleryViewModel: ObservableObject {
     }
 
     private func performSearch(_ searchText: String) {
+        guard !isGalleryEmpty else {
+            #if DEBUG
+            print("Cannot perform search: Photo gallery is empty")
+            #endif
+            return
+        }
+        
         guard let tokenizer = customTokenizer else {
             #if DEBUG
             print("Tokenizer not initialized")
             #endif
             return
         }
-
+        
         let tokens = tokenizer.tokenize(texts: [searchText])
 
         Task {
@@ -176,7 +218,39 @@ class PhotoGalleryViewModel: ObservableObject {
         }
     }
     
-    func performImageSearch(from ciImage: CIImage) async {
+    func performImageSearch(from ciImage: CIImage) {
+        if useAsyncImageSearch {
+            Task {
+                await performImageSearchAsync(from: ciImage)
+            }
+        } else {
+            performImageSearchSync(from: ciImage)
+        }
+    }
+    
+    func performImageSearchSync(from ciImage: CIImage) {
+        guard !isGalleryEmpty else {
+            #if DEBUG
+            print("Cannot perform search: Photo gallery is empty")
+            #endif
+            return
+        }
+        guard isCameraActive else { return }
+        guard let cgImage = CIContext().createCGImage(ciImage, from: ciImage.extent) else { return }
+        let uiImage = UIImage(cgImage: cgImage)
+
+        guard let pixelBuffer = Preprocessing.preprocessImage(uiImage, targetSize: CGSize(width: 256, height: 256)) else { return }
+
+        guard let imageFeatures = clipImageModel.performInferenceSync(pixelBuffer) else { return }
+
+        let topIDs = calculateAndPrintTopPhotoIDs(textFeatures: imageFeatures)
+        DispatchQueue.main.async {
+            self.topPhotoIDs = topIDs
+        }
+    }
+    
+    // Async implementation of performImageSearch
+    func performImageSearchAsync(from ciImage: CIImage) async {
         guard isCameraActive else {
             #if DEBUG
             print("Camera is not active, skipping image search")
@@ -240,15 +314,18 @@ class PhotoGalleryViewModel: ObservableObject {
             }
             DispatchQueue.main.async {
                 self.assets = assets
+                self.updateGalleryStatus()
 //                self.processAndCachePhotos()
-                profileAsync("processAndCachePhotos") { done in
-                    self.processAndCachePhotos {
-                        done()
+                if !self.isGalleryEmpty {
+                    profileAsync("processAndCachePhotos") { done in
+                        self.processAndCachePhotos {
+                            done()
+                        }
+                    } completion: { time in
+                        #if DEBUG
+                        print("Process and cache completted in \(time) ms")
+                        #endif
                     }
-                } completion: { time in
-                    #if DEBUG
-                    print("Process and cache completted in \(time) ms")
-                    #endif
                 }
             }
         }
@@ -375,6 +452,7 @@ class PhotoGalleryViewModel: ObservableObject {
         }
     }
     
+    // Post-processing function in MPSGraph for calculating similarities and selecting TopPhotosIDs
     private func calculateAndPrintTopPhotoIDs(textFeatures: MLMultiArray) -> [String] {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("Metal is not supported on this device")

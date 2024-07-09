@@ -95,6 +95,13 @@ struct SettingsView: View {
                 } header: {
                     Text("Model Profiler")
                 }
+                
+                Section(header: Text("Performance Settings")) {
+                    Toggle(isOn: $photoGalleryViewModel.useAsyncImageSearch) {
+                        Text("Enable asynchronous camera prediction (faster but may freeze the app)")
+                    }
+                }
+                
             }
             .navigationTitle("Settings")
             .navigationBarItems(trailing: Button("Done") {
