@@ -8,10 +8,7 @@
 </h1>
 
 
-
 https://github.com/fguzman82/CLIP-Finder2/assets/34175524/d711f5d4-0629-483a-9e3a-ecc1b45a9b2f
-
-
 
 
 CLIP-Finder is an iOS application that leverages advanced AI models to perform image similarity searches. It utilizes two CoreML models optimized for the Apple Neural Engine, ensuring efficient on-device processing. The app allows users to search for images from the photo gallery using natural language descriptions or live camera input. All searches are completely offline, providing a user-friendly interface for searching and profiling while taking full advantage of Apple's cutting-edge AI capabilities.
@@ -74,10 +71,10 @@ This section provides details on the CoreML conversion scripts used for converti
 
 ### Scripts
 
-1. **[CLIPImageModel_to_CoreML.ipynb](https://github.com/fguzman82/CLIP-Finder2/blob/main/CLIPImageModel_to_CoreML.ipynb)** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ZHMzsJyAukBa4Jryv4Tmc_BOBmbQAjxf?usp=sharing)
+1. **CLIPImageModel to CoreML** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ZHMzsJyAukBa4Jryv4Tmc_BOBmbQAjxf?usp=sharing)
    - This notebook demonstrates the process of converting a CLIP image model to CoreML format.
 
-2. **[CLIPTextModel_to_CoreML.ipynb](https://github.com/fguzman82/CLIP-Finder2/blob/main/CLIPTextModel_to_CoreML.ipynb)**  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1PxzB8M0h2bf-uYpw7fIZImpGSVXUI7Ie?usp=sharing)
+2. **CLIPTextModel to CoreML**  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1PxzB8M0h2bf-uYpw7fIZImpGSVXUI7Ie?usp=sharing)
    - This notebook demonstrates the process of converting a CLIP text model to CoreML format.
   
 ## Search Methods
