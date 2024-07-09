@@ -35,7 +35,6 @@ This project is based on Apple's [MobileCLIP](https://github.com/apple/ml-mobile
 - Cache management for optimized performance
 - Tokenizer: Implementation in Swift based on the Tokenizer written in Python from [open_clip](https://github.com/mlfoundations/open_clip/blob/main/src/open_clip/tokenizer.py)
 
-
 ## Components
 
 1. **AI Models**: 
@@ -64,8 +63,13 @@ This project is based on Apple's [MobileCLIP](https://github.com/apple/ml-mobile
 
    ⚠️ WARNING: Turbo Mode is faster but may cause the app to freeze momentarily. Use with caution.
 
+## Core ML Packages
+
+This section describes the variations of the Core ML packages available. These packages are designed to provide different levels of performance and accuracy, suitable for a variety of applications. 
+
+The Core ML packages are available at: [MobileCLIP on HuggingFace](https://huggingface.co/fguzman82/MobileCLIP).
    
-## CoreML Conversion Scripts
+## Core ML Conversion Scripts
 
 This section provides details on the CoreML conversion scripts used for converting models to the CoreML format. The scripts are available as Jupyter Notebooks and can be found in the repository.
 
