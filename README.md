@@ -1,6 +1,7 @@
 <div align="center">
-        <img src="CLIP-Finder2/Assets.xcassets/AppIcon.appiconset/CLIPFinderIcon_low-1024.png" width="100" style="border: none;">
+        <img src="https://github.com/fguzman82/CLIP-Finder2/assets/34175524/7c4dfb0d-076e-439b-9ae4-10ece7dfef2b" width="100" style="border: none;">
 </div>
+
 
 <h1 align="center">
    CLIP-Finder
