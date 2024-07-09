@@ -56,6 +56,18 @@ This project is based on Apple's [MobileCLIP](https://github.com/apple/ml-mobile
 4. **Data Management**:
    - Core Data for efficient storage and retrieval of processed image features
 
+## CoreML Conversion Scripts
+
+This section provides details on the CoreML conversion scripts used for converting models to the CoreML format. The scripts are available as Jupyter Notebooks and can be found in the repository.
+
+### Scripts
+
+1. **[CLIPImageModel_to_CoreML.ipynb](https://github.com/fguzman82/CLIP-Finder2/blob/main/CLIPImageModel_to_CoreML.ipynb)** [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1ZHMzsJyAukBa4Jryv4Tmc_BOBmbQAjxf?usp=sharing)
+   - This notebook demonstrates the process of converting a CLIP image model to CoreML format.
+
+2. **[CLIPTextModel_to_CoreML.ipynb](https://github.com/fguzman82/CLIP-Finder2/blob/main/CLIPTextModel_to_CoreML.ipynb)**  [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1PxzB8M0h2bf-uYpw7fIZImpGSVXUI7Ie?usp=sharing)
+   - This notebook demonstrates the process of converting a CLIP text model to CoreML format.
+  
 ## Search Methods
 
 1. **Text Search**: Enter descriptive text to find matching images in your gallery
