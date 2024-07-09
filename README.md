@@ -55,7 +55,19 @@ This project is based on Apple's [MobileCLIP](https://github.com/apple/ml-mobile
 
 4. **Data Management**:
    - Core Data for efficient storage and retrieval of processed image features
+  
+5. **Asynchronous Image Prediction (Turbo Mode)**
 
+   CLIP-Finder2 now includes an experimental asynchronous image prediction feature, also known as "Turbo Mode". This feature can be activated through a button in the camera interface.
+
+   - Faster image processing: Turbo Mode enables asynchronous camera prediction, potentially speeding up the image search process.
+   - Activation: To activate, tap the "Turbo" button in the lower right corner of the camera interface.
+   - For more information on asynchronous prediction in Core ML, refer to this WWDC 2023 session:
+   [Improve Core ML integration with async prediction](https://developer.apple.com/videos/play/wwdc2023/10049/)
+
+   ⚠️ WARNING: Turbo Mode is faster but may cause the app to freeze momentarily. Use with caution.
+
+   
 ## CoreML Conversion Scripts
 
 This section provides details on the CoreML conversion scripts used for converting models to the CoreML format. The scripts are available as Jupyter Notebooks and can be found in the repository.
