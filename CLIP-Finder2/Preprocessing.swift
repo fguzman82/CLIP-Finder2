@@ -61,6 +61,7 @@ class Preprocessing {
                                                                   height: Int(size.height),
                                                                   mipmapped: false)
         descriptor.usage = [.shaderRead, .shaderWrite]
+//        descriptor.storageMode = .shared
         return descriptor
     }
     
