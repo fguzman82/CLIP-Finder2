@@ -68,7 +68,7 @@ struct ContentView: View {
                                         .foregroundColor(.secondary)
                                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 } else {
-                                    PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: isPreviewActive ? 4 : 7)
+                                    PhotoGalleryView(assetsByID: photoGalleryViewModel.assetsByID, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: isPreviewActive ? 4 : 7)
                                 }
                             }
                         } else {
@@ -82,7 +82,7 @@ struct ContentView: View {
                                     .foregroundColor(.secondary)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                             } else {
-                                PhotoGalleryView(assets: photoGalleryViewModel.assets, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: 4)
+                                PhotoGalleryView(assetsByID: photoGalleryViewModel.assetsByID, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: 4)
                             }
                         }
                         
@@ -184,7 +184,7 @@ struct SearchBar: View {
 }
 
 struct PhotoGalleryView: View {
-    let assets: [PHAsset]
+    let assetsByID: [String: PHAsset]
     let topPhotoIDs: [String]
     let columns: Int
 
@@ -192,7 +192,7 @@ struct PhotoGalleryView: View {
         ScrollView {
             LazyVGrid(columns: Array(repeating: .init(.flexible()), count: columns), spacing: 0.1) {
                 ForEach(topPhotoIDs, id: \.self) { photoID in
-                    if let asset = assets.first(where: { $0.localIdentifier == photoID }) {
+                    if let asset = assetsByID[photoID] {
                         PhotoGridItemView(asset: asset)
                     }
                 }
