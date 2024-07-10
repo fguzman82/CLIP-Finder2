@@ -441,7 +441,7 @@
 			);
 			currentVersion = 1C62E8ED2C2A211000C1C637 /* PhotosDB.xcdatamodel */;
 			name = PhotosDB.xcdatamodeld;
-			path = "/Users/fabioguzman/Documents/CLIP-Finder2/CLIP-Finder2/PhotosDB.xcdatamodeld";
+			path = "PhotosDB.xcdatamodeld";
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
