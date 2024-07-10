@@ -17,7 +17,9 @@ import CoreImage
 
 class PhotoGalleryViewModel: ObservableObject {
     @Published var assets: [PHAsset] = []
+    @Published var assetsByID: [String: PHAsset] = [:]
     @Published var topPhotoIDs: [String] = []
+    var isSearchingAsync = false
     @Published var isGalleryEmpty: Bool = true
     
     private var customTokenizer: CLIPTokenizer?
@@ -220,8 +222,10 @@ class PhotoGalleryViewModel: ObservableObject {
     
     func performImageSearch(from ciImage: CIImage) {
         if useAsyncImageSearch {
-            Task {
-                await performImageSearchAsync(from: ciImage)
+            if !isSearchingAsync {
+                Task {
+                    await performImageSearchAsync(from: ciImage)
+                }
             }
         } else {
             performImageSearchSync(from: ciImage)
@@ -271,12 +275,20 @@ class PhotoGalleryViewModel: ObservableObject {
             #endif
             return
         }
-        
+
         do {
+            await MainActor.run {
+                self.isSearchingAsync = true
+            }
+
             if let imageFeatures = try await clipImageModel.performInference(pixelBuffer) {
-                let topIDs = calculateAndPrintTopPhotoIDs(textFeatures: imageFeatures)
+                let topIDs = await Task {
+                    calculateAndPrintTopPhotoIDs(textFeatures: imageFeatures)
+                }.value
+
                 await MainActor.run {
                     self.topPhotoIDs = topIDs
+                    self.isSearchingAsync = false
                 }
             } else {
                 #if DEBUG
@@ -314,6 +326,8 @@ class PhotoGalleryViewModel: ObservableObject {
             }
             DispatchQueue.main.async {
                 self.assets = assets
+                self.assetsByID = Dictionary(assets.map({ ($0.localIdentifier, $0) }),
+                                             uniquingKeysWith: { a,b in a})
                 self.updateGalleryStatus()
 //                self.processAndCachePhotos()
                 if !self.isGalleryEmpty {
@@ -451,7 +465,10 @@ class PhotoGalleryViewModel: ObservableObject {
             
         }
     }
-    
+
+    // Avoid fetching photos all the time. These should be small enough to hold in memory.
+    lazy var cachedPhotoVectorsWithIDs = CoreDataManager.shared.fetchAllPhotoVectors()
+
     // Post-processing function in MPSGraph for calculating similarities and selecting TopPhotosIDs
     private func calculateAndPrintTopPhotoIDs(textFeatures: MLMultiArray) -> [String] {
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -461,11 +478,9 @@ class PhotoGalleryViewModel: ObservableObject {
         let graph = MPSGraph()
         let textFeaturesArray = MPSGraphExtensions.convertTextFeaturesToMPSNDArray(textFeatures: textFeatures, device: device)
         
-        let photoVectorsWithIDs = CoreDataManager.shared.fetchAllPhotoVectors()
+        let photoVectors = cachedPhotoVectorsWithIDs.map { $0.vector }
+        let photoIDs = cachedPhotoVectorsWithIDs.map { $0.id }
 
-        let photoVectors = photoVectorsWithIDs.map { $0.vector }
-        let photoIDs = photoVectorsWithIDs.map { $0.id }
-        
         let photoFeaturesDescriptor = MPSNDArrayDescriptor(dataType: .float16, shape: [NSNumber(value: photoVectors.count), 512])
         
         let photoFeatures = MPSNDArray(device: device, descriptor: photoFeaturesDescriptor)
