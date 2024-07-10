@@ -368,7 +368,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.fguzman82.CLIP-Finder2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -401,7 +401,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.2;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.fguzman82.CLIP-Finder2";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -440,8 +440,7 @@
 				1C62E8ED2C2A211000C1C637 /* PhotosDB.xcdatamodel */,
 			);
 			currentVersion = 1C62E8ED2C2A211000C1C637 /* PhotosDB.xcdatamodel */;
-			name = PhotosDB.xcdatamodeld;
-			path = "PhotosDB.xcdatamodeld";
+			path = PhotosDB.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};

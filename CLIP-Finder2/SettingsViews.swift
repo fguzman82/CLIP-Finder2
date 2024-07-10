@@ -102,6 +102,15 @@ struct SettingsView: View {
                     }
                 }
                 
+                Section(header: Text("About")) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("This is an open-source project")
+                        
+                        Link("View on GitHub", destination: URL(string: "https://github.com/fguzman82/CLIP-Finder2/")!)
+                            .foregroundColor(.blue)
+                    }
+                }
+                
             }
             .navigationTitle("Settings")
             .navigationBarItems(trailing: Button("Done") {
