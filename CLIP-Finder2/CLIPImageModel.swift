@@ -111,6 +111,37 @@ final class CLIPImageModel {
         }
 
     }
+    
+    func performInferenceBatch(_ pixelBuffers: [CVPixelBuffer], options: MLPredictionOptions = MLPredictionOptions()) throws -> [MLMultiArray] {
+        guard let model = model else {
+            throw NSError(domain: "ClipImageModel", code: 2, userInfo: [NSLocalizedDescriptionKey: "Model is not loaded"])
+        }
+        
+        let inputs = pixelBuffers.map { InputFeatureProvider(pixelBuffer: $0) }
+        let batchProvider = MLArrayBatchProvider(array: inputs)
+        
+        do {
+            let batchOutput = try model.predictions(from: batchProvider, options: options)
+            var results: [MLMultiArray] = []
+            results.reserveCapacity(inputs.count)
+            
+            for i in 0..<batchOutput.count {
+                let outputFeatures = batchOutput.features(at: i)
+                if let multiArray = outputFeatures.featureValue(for: "var_1259")?.multiArrayValue {
+                    results.append(multiArray)
+                } else {
+                    throw NSError(domain: "ClipImageModel", code: 3, userInfo: [NSLocalizedDescriptionKey: "Failed to retrieve MLMultiArray from prediction for item at index \(i)"])
+                }
+            }
+            
+            return results
+        } catch {
+            #if DEBUG
+            print("ClipImageModel: Failed to perform batch inference: \(error)")
+            #endif
+            throw error
+        }
+    }
 
 
 }

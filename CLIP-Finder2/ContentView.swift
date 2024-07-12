@@ -89,7 +89,8 @@ struct ContentView: View {
                         if photoGalleryViewModel.isProcessing {
                             VStack {
                                 ProgressView(value: photoGalleryViewModel.processingProgress) {
-                                    Text("Processing Photos: \(photoGalleryViewModel.processedPhotosCount)/\(photoGalleryViewModel.totalPhotosCount)")
+                                    Text("Preprocessing Photos (first launch only):")
+                                    Text("\(photoGalleryViewModel.processedPhotosCount)/\(photoGalleryViewModel.totalPhotosCount)")
                                 }
                                 .progressViewStyle(LinearProgressViewStyle())
                                 .padding()

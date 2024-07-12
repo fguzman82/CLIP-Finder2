@@ -52,15 +52,15 @@ struct SettingsView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section {
-                    Button(action: {
-                        showingAlert = true
-                    }) {
-                        Text("Clear Photo Preprocessing Cache")
-                    }
-                    .foregroundColor(.red)
+                Section(header: Text("Total Photos: \(photoGalleryViewModel.assets.count)")) {
+                        Button(action: {
+                            showingAlert = true
+                        }) {
+                            Text("Clear Photo Preprocessing Cache")
+                        }
+                        .foregroundColor(.red)
                 }
-                
+                                
                 Section {
                     Button(action: {
                         isProfilerRunning = true
