@@ -35,6 +35,9 @@ class PhotoGalleryViewModel: ObservableObject {
     private var cachedPhotoVectors: [String: MLMultiArray] = [:]
     private var searchTask: Task<Void, Never>?
     private var wasPlayingBeforeTurbo: Bool = false
+    
+    private let userDefaults = UserDefaults.standard
+    private let initialProcessKey = "hasPerformedInitialProcess"
 
     var onFrameCaptured: ((CIImage) -> Void)?
 
@@ -44,6 +47,17 @@ class PhotoGalleryViewModel: ObservableObject {
         self.clipTextModel = CLIPTextModel()
         setupTokenizer()
         setupCameraManager()
+        
+    }
+    
+    private func checkForInitialProcess() async -> Bool {
+        let hasPerformedInitialProcess = userDefaults.bool(forKey: initialProcessKey)
+        
+        if !hasPerformedInitialProcess {
+            userDefaults.set(true, forKey: initialProcessKey)
+            return true
+        }
+        return false
     }
 
     private func setupTokenizer() {
@@ -68,8 +82,17 @@ class PhotoGalleryViewModel: ObservableObject {
                 updateGalleryStatus()
             }
 
+            let initialProcessNeeded = await checkForInitialProcess()
+
+            if initialProcessNeeded {
+                reprocessPhotos()
+                // Terminamos aquí porque reprocessPhotos() llamará a loadData() de nuevo
+                return
+            }
+            
             await loadAssetsFromPhotoLibrary()
             await loadCachedVectors()
+            await cleanupDeletedPhotos()
             
             let unprocessedAssets = assets.filter { !cachedPhotoVectors.keys.contains($0.localIdentifier) }
             if !unprocessedAssets.isEmpty {
@@ -131,6 +154,23 @@ class PhotoGalleryViewModel: ObservableObject {
 
     private func loadCachedVectors() async {
         self.cachedPhotoVectors = await CoreDataManager.shared.fetchAllPhotoVectors()
+    }
+    
+    private func cleanupDeletedPhotos() async {
+        let currentPhotoIDs = Set(assets.map { $0.localIdentifier })
+        let cachedPhotoIDs = Set(cachedPhotoVectors.keys)
+
+        let deletedPhotoIDs = cachedPhotoIDs.subtracting(currentPhotoIDs)
+
+        if !deletedPhotoIDs.isEmpty {
+            await MainActor.run {
+                for id in deletedPhotoIDs {
+                    cachedPhotoVectors.removeValue(forKey: id)
+                }
+            }
+
+            await CoreDataManager.shared.deleteVectors(for: Array(deletedPhotoIDs))
+        }
     }
 
 //    private func processAndCachePhotos(_ assetsToProcess: [PHAsset]) async {
