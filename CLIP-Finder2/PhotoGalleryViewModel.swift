@@ -86,7 +86,6 @@ class PhotoGalleryViewModel: ObservableObject {
 
             if initialProcessNeeded {
                 reprocessPhotos()
-                // Terminamos aquí porque reprocessPhotos() llamará a loadData() de nuevo
                 return
             }
             
@@ -406,7 +405,6 @@ class PhotoGalleryViewModel: ObservableObject {
             updateGalleryStatus()
         }
 
-//        let imageManager = PHImageManager.default()
         let options = PHImageRequestOptions()
         options.isSynchronous = true
         options.deliveryMode = .highQualityFormat
@@ -634,7 +632,6 @@ class PhotoGalleryViewModel: ObservableObject {
         return bestPhotoIDs
     }
 
-    // Funciones relacionadas con la cámara
     func startCamera() {
         isCameraActive = true
         isPaused = false
