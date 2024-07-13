@@ -17,6 +17,7 @@ struct ContentView: View {
     @State private var orientation = UIDeviceOrientation.unknown
     @State private var previousOrientation = UIDeviceOrientation.unknown
     @State private var showingSettings = false
+    
 
     var body: some View {
         NavigationView {
@@ -102,6 +103,9 @@ struct ContentView: View {
             }
             .navigationTitle("CLIP-Finder")
             .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    FilteredPhotoCountSelector(viewModel: photoGalleryViewModel)
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         showingSettings = true
@@ -192,9 +196,12 @@ struct PhotoGalleryView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: Array(repeating: .init(.flexible()), count: columns), spacing: 0.1) {
-                ForEach(topPhotoIDs, id: \.self) { photoID in
+                ForEach(Array(topPhotoIDs.enumerated()), id: \.element) { index, photoID in
                     if let asset = assetsByID[photoID] {
-                        PhotoGridItemView(asset: asset)
+                        PhotoGridItemView(asset: asset,
+                                          index: index,
+                                          photoIDs: topPhotoIDs,
+                                          assetsByID: assetsByID)
                     }
                 }
                 .padding(0)
@@ -205,10 +212,13 @@ struct PhotoGalleryView: View {
 
 struct PhotoGridItemView: View {
     let asset: PHAsset
+    let index: Int
+    let photoIDs: [String]
+    let assetsByID: [String: PHAsset]
     @State private var thumbnailImage: UIImage?
 
     var body: some View {
-        NavigationLink(destination: FullResolutionImageView(asset: asset)) {
+        NavigationLink(destination: FullResolutionImageView(photoIDs: photoIDs, initialIndex: index, assetsByID: assetsByID)) {
             if let image = thumbnailImage {
                 Image(uiImage: image)
                     .resizable()
@@ -238,10 +248,73 @@ struct PhotoGridItemView: View {
 }
 
 struct FullResolutionImageView: View {
+    let photoIDs: [String]
+    let initialIndex: Int
+    let assetsByID: [String: PHAsset]
+    @State private var currentIndex: Int
+    @State private var currentImage: UIImage?
+    @Environment(\.presentationMode) var presentationMode
+
+    init(photoIDs: [String], initialIndex: Int, assetsByID: [String: PHAsset]) {
+        self.photoIDs = photoIDs
+        self.initialIndex = initialIndex
+        self.assetsByID = assetsByID
+        _currentIndex = State(initialValue: initialIndex)
+    }
+
+    var body: some View {
+        TabView(selection: $currentIndex) {
+            ForEach(photoIDs.indices, id: \.self) { index in
+                if let asset = assetsByID[photoIDs[index]] {
+                    SingleImageView(asset: asset, onImageLoaded: { image in
+                        if index == currentIndex {
+                            currentImage = image
+                        }
+                    })
+                    .tag(index)
+                }
+            }
+        }
+        .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+        .indexViewStyle(PageIndexViewStyle(backgroundDisplayMode: .always))
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarItems(leading: backButton, trailing: shareButton)
+    }
+
+    private var backButton: some View {
+        Button(action: {
+            presentationMode.wrappedValue.dismiss()
+        }) {
+            HStack {
+                Image(systemName: "chevron.left")
+                Text("Back")
+            }
+        }
+    }
+
+    private var shareButton: some View {
+        Button(action: shareImage) {
+            Image(systemName: "square.and.arrow.up")
+        }
+    }
+
+    private func shareImage() {
+        guard let image = currentImage else { return }
+        let activityViewController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            rootViewController.present(activityViewController, animated: true, completion: nil)
+        }
+    }
+}
+
+struct SingleImageView: View {
     let asset: PHAsset
+    let onImageLoaded: (UIImage) -> Void
     @State private var image: UIImage?
     @State private var isLoading = true
-    @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
         ZStack {
@@ -254,36 +327,10 @@ struct FullResolutionImageView: View {
             } else {
                 Text("Failed to load image")
             }
-            
-            VStack {
-                Spacer()
-                Button(action: shareImage) {
-                    Image(systemName: "square.and.arrow.up")
-                        .font(.system(size: 24))
-                        .foregroundColor(.white)
-                        .frame(width: 60, height: 60)
-                        .background(Color.black.opacity(0.6))
-                        .clipShape(Circle())
-                        .padding(.bottom, 20)
-                }
-            }
         }
-        .navigationTitle("Full Resolution Image")
-        .navigationBarTitleDisplayMode(.inline)
-        .navigationBarBackButtonHidden(true)
-        .navigationBarItems(leading: Button(action: {
-            presentationMode.wrappedValue.dismiss()
-        }) {
-            HStack {
-                Image(systemName: "chevron.left")
-                Text("Back")
-            }
-        })
-        .onAppear {
-            loadFullResolutionImage()
-        }
+        .onAppear(perform: loadFullResolutionImage)
     }
-    
+
     private func loadFullResolutionImage() {
         let manager = PHImageManager.default()
         let option = PHImageRequestOptions()
@@ -295,19 +342,46 @@ struct FullResolutionImageView: View {
             DispatchQueue.main.async {
                 if let image = image {
                     self.image = image
+                    self.onImageLoaded(image)
                 }
                 self.isLoading = false
             }
         }
     }
+}
+
+
+
+struct FilteredPhotoCountSelector: View {
+    @ObservedObject var viewModel: PhotoGalleryViewModel
     
-    private func shareImage() {
-        guard let image = self.image else { return }
-        let activityViewController = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let rootViewController = windowScene.windows.first?.rootViewController {
-            rootViewController.present(activityViewController, animated: true, completion: nil)
+    var body: some View {
+        Menu {
+            Text("Top Results to Display")
+                .font(.headline)
+            
+            Divider()
+            
+            ForEach([50, 100, 200, 500, 1000], id: \.self) { count in
+                Button(action: {
+                    viewModel.updateFilteredPhotoCount(count)
+                }) {
+                    Text("\(count)")
+                    if count > viewModel.assets.count {
+                        Text("(All)")
+                            .foregroundColor(.secondary)
+                    }
+                }
+            }
+        } label: {
+            HStack {
+                Image(systemName: "photo.stack")
+                Text("Top \(viewModel.numberOfFilteredPhotos)")
+                if viewModel.numberOfFilteredPhotos >= viewModel.assets.count {
+                    Text("(All)")
+                        .foregroundColor(.secondary)
+                }
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ class PhotoGalleryViewModel: ObservableObject {
     @Published var isCameraActive = false
     @Published var isPaused = false
     @Published var useAsyncImageSearch: Bool = false
+    @Published var numberOfFilteredPhotos: Int = 50
 
     private var customTokenizer: CLIPTokenizer?
     private var clipTextModel: CLIPTextModel
@@ -520,12 +521,24 @@ class PhotoGalleryViewModel: ObservableObject {
             }
         }
     }
+    
+    func updateFilteredPhotoCount(_ newCount: Int) {
+        let totalAvailablePhotos = assets.count
+        numberOfFilteredPhotos = min(newCount, totalAvailablePhotos)
+        
+        if !topPhotoIDs.isEmpty {
+            performSearch(lastSearchText)
+        }
+    }
+    
+    private var lastSearchText: String = ""
 
     private func performSearch(_ searchText: String) {
         guard !isGalleryEmpty else { return }
         guard let tokenizer = customTokenizer else { return }
 
         let tokens = tokenizer.tokenize(texts: [searchText])
+        lastSearchText = searchText
 
         Task {
             do {
@@ -626,8 +639,11 @@ class PhotoGalleryViewModel: ObservableObject {
         similaritiesNDArray?.readBytes(&similarities, strideBytes: nil)
 
         let bestPhotoIndices = similarities.enumerated().sorted(by: { $0.element > $1.element }).map { $0.offset }
+        
+        let availablePhotoCount = photoIDs.count
+        let actualNumberOfFilteredPhotos = min(numberOfFilteredPhotos, availablePhotoCount)
 
-        let bestPhotoIDs = bestPhotoIndices.prefix(48).map { photoIDs[$0] }
+        let bestPhotoIDs = bestPhotoIndices.prefix(actualNumberOfFilteredPhotos).map { photoIDs[$0] }
 
         return bestPhotoIDs
     }
@@ -711,12 +727,7 @@ class PhotoGalleryViewModel: ObservableObject {
         Task {
             await withCheckedContinuation { continuation in
                 DispatchQueue.global(qos: .userInitiated).async {
-                    let dataExists = !self.cachedPhotoVectors.isEmpty
-                    if dataExists {
-                        CoreDataManager.shared.deleteAllData()
-                    } else {
-                        print("No existing data to delete. Proceeding with initial processing.")
-                    }
+                    CoreDataManager.shared.deleteAllData()
                     continuation.resume()
                 }
             }
