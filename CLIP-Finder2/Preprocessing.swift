@@ -13,6 +13,7 @@ import MetalPerformanceShaders
 import UIKit
 import CoreImage
 
+// MPS Implementation
 //class Preprocessing {
 //    static let device: MTLDevice = {
 //        guard let device = MTLCreateSystemDefaultDevice() else {
@@ -97,6 +98,7 @@ import CoreImage
 //}
 //
 
+// New Implementation with CoreImage
 class Preprocessing {
 
     static let context = CIContext(options: [.useSoftwareRenderer : false])
@@ -109,12 +111,11 @@ class Preprocessing {
 
         let ciImage = CIImage(cgImage: cgImage)
 
-        // Calcular la escala
         let scaleX = targetSize.width / ciImage.extent.width
         let scaleY = targetSize.height / ciImage.extent.height
         let scale = min(scaleX, scaleY)
 
-        // Crear el filtro de escala bilineal
+        // Bilinear Filter
         guard let scaleFilter = CIFilter(name: "CILanczosScaleTransform") else {
             print("Failed to create CILanczosScaleTransform filter")
             return nil
@@ -129,11 +130,9 @@ class Preprocessing {
             return nil
         }
 
-        // Recortar la imagen al tamaño exacto si es necesario
         let cropRect = CGRect(x: 0, y: 0, width: targetSize.width, height: targetSize.height)
         let croppedImage = outputImage.cropped(to: cropRect)
 
-        // Crear un CVPixelBuffer
         let pixelBuffer = createPixelBuffer(width: Int(targetSize.width), height: Int(targetSize.height))
 
         guard let buffer = pixelBuffer else {
@@ -141,7 +140,6 @@ class Preprocessing {
             return nil
         }
 
-        // Renderizar la imagen CIImage en el CVPixelBuffer
         context.render(croppedImage, to: buffer)
 
         return buffer
