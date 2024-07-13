@@ -217,8 +217,10 @@ class CoreDataManager {
                 let result = try context.execute(deleteRequest) as? NSBatchDeleteResult
                 let objectIDArray = result?.result as? [NSManagedObjectID] ?? []
                 
-                let changes = [NSDeletedObjectsKey: objectIDArray]
-                NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [self.viewContext])
+                if !objectIDArray.isEmpty {
+                    let changes = [NSDeletedObjectsKey: objectIDArray]
+                    NSManagedObjectContext.mergeChanges(fromRemoteContextSave: changes, into: [self.viewContext])
+                }
                 
                 try context.save()
                 print("All data deleted successfully")

@@ -711,12 +711,20 @@ class PhotoGalleryViewModel: ObservableObject {
         Task {
             await withCheckedContinuation { continuation in
                 DispatchQueue.global(qos: .userInitiated).async {
-                    CoreDataManager.shared.deleteAllData()
+                    let dataExists = !self.cachedPhotoVectors.isEmpty
+                    if dataExists {
+                        CoreDataManager.shared.deleteAllData()
+                    } else {
+                        print("No existing data to delete. Proceeding with initial processing.")
+                    }
                     continuation.resume()
                 }
             }
             
             await MainActor.run {
+                self.cachedPhotoVectors.removeAll()
+                self.processedPhotosCount = 0
+                self.totalPhotosCount = 0
                 self.loadData()
             }
         }
