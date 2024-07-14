@@ -36,6 +36,7 @@ class PhotoGalleryViewModel: ObservableObject {
     private var cachedPhotoVectors: [String: MLMultiArray] = [:]
     private var searchTask: Task<Void, Never>?
     private var wasPlayingBeforeTurbo: Bool = false
+    var isSearchingAsync = false
     
     private let userDefaults = UserDefaults.standard
     private let initialProcessKey = "hasPerformedInitialProcess"
@@ -310,8 +311,10 @@ class PhotoGalleryViewModel: ObservableObject {
 
     func performImageSearch(from ciImage: CIImage) {
         if useAsyncImageSearch {
-            Task {
-                await performImageSearchAsync(from: ciImage)
+            if !isSearchingAsync {
+                Task {
+                    await performImageSearchAsync(from: ciImage)
+                }
             }
         } else {
             performImageSearchSync(from: ciImage)
@@ -340,10 +343,17 @@ class PhotoGalleryViewModel: ObservableObject {
 
         guard let pixelBuffer = Preprocessing.preprocessImageWithCoreImage(uiImage, targetSize: CGSize(width: 256, height: 256)) else { return }
         do {
+            await MainActor.run {
+                self.isSearchingAsync = true
+            }
+            
             if let imageFeatures = try await clipImageModel.performInference(pixelBuffer) {
-                let topIDs = calculateAndPrintTopPhotoIDs(textFeatures: imageFeatures)
+                let topIDs = await Task {
+                    calculateAndPrintTopPhotoIDs(textFeatures: imageFeatures)
+                }.value
                 await MainActor.run {
                     self.topPhotoIDs = topIDs
+                    self.isSearchingAsync = false
                 }
             }
         } catch {
