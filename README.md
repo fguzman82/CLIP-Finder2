@@ -110,7 +110,8 @@ CLIP-Finder implements efficient batch processing to handle large photo gallerie
 
 - Similarly, if photos are deleted from the device, CLIP-Finder updates its database accordingly during the next app launch. This cleanup process maintains the accuracy of the search results and optimizes storage usage.
 
-For more information on Batch prediction in Core ML, refer to this [WWDC 2023 session](https://developer.apple.com/videos/play/wwdc2023/10049/)
+Refer to this Blog for more details: 🤗[Hugging Face Blog](https://huggingface.co/blog/fguzman82/coreml-async-batch-prediction)
+
 
 ## Settings
 
