@@ -67,7 +67,7 @@ This project is based on Apple's [MobileCLIP](https://github.com/apple/ml-mobile
 
 This section describes the variations of the Core ML packages available. These packages are designed to provide different levels of performance and accuracy, suitable for a variety of applications. 
 
-The Core ML packages are available at: [MobileCLIP on HuggingFace](https://huggingface.co/fguzman82/MobileCLIP).
+The Core ML packages are available at: 🤗 [MobileCLIP on HuggingFace](https://huggingface.co/fguzman82/MobileCLIP).
    
 ## Core ML Conversion Scripts
 
@@ -110,7 +110,7 @@ CLIP-Finder implements efficient batch processing to handle large photo gallerie
 
 - Similarly, if photos are deleted from the device, CLIP-Finder updates its database accordingly during the next app launch. This cleanup process maintains the accuracy of the search results and optimizes storage usage.
 
-Refer to this Blog for more details: 🤗[Hugging Face Blog](https://huggingface.co/blog/fguzman82/coreml-async-batch-prediction)
+Refer to this Blog for more details: 🤗 [Hugging Face Blog](https://huggingface.co/blog/fguzman82/coreml-async-batch-prediction)
 
 
 ## Settings
