@@ -33,8 +33,8 @@ struct ContentView: View {
                             TextField("Enter search text", text: $searchText)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .focused($isTextFieldFocused)
-                                .onChange(of: searchText) { newValue in
-                                    photoGalleryViewModel.processTextSearch(newValue)
+                                .onChange(of: searchText) {
+                                    photoGalleryViewModel.processTextSearch(searchText)
                                 }
                             
                             Button(action: {
@@ -167,8 +167,8 @@ struct ContentView: View {
         .onTapGesture {
             isTextFieldFocused = false
         }
-        .onChange(of: photoGalleryViewModel.isCameraActive) { newValue in
-            if !newValue {
+        .onChange(of: photoGalleryViewModel.isCameraActive) {
+            if !photoGalleryViewModel.isCameraActive {
                 isPreviewActive = false
             }
         }
@@ -323,7 +323,7 @@ struct FullResolutionImageView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading: backButton, trailing: shareButton)
-        .onChange(of: currentIndex) { _ in
+        .onChange(of: currentIndex) {
             currentScale = 1.0
         }
     }
