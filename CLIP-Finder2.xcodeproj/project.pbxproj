@@ -41,6 +41,7 @@
 		1C0F0CC82C2E03FF0007191B /* CLIPTextModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIPTextModel.swift; sourceTree = "<group>"; };
 		1C0F0CCA2C2F12E40007191B /* CameraPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreviewView.swift; sourceTree = "<group>"; };
 		1C0F0CCC2C2F13030007191B /* CameraManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraManager.swift; sourceTree = "<group>"; };
+		1C1D3CF82C494AE000A9A482 /* PredictionModes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = PredictionModes.md; sourceTree = "<group>"; };
 		1C26D80B2C38185A00F7E24B /* CLIPImageModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIPImageModel.swift; sourceTree = "<group>"; };
 		1C62E8D92C2A206700C1C637 /* CLIP-Finder2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CLIP-Finder2.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1C62E8DC2C2A206700C1C637 /* CLIP_Finder2App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CLIP_Finder2App.swift; sourceTree = "<group>"; };
@@ -73,6 +74,7 @@
 		1C62E8D02C2A206700C1C637 = {
 			isa = PBXGroup;
 			children = (
+				1C1D3CF82C494AE000A9A482 /* PredictionModes.md */,
 				1C62E8DB2C2A206700C1C637 /* CLIP-Finder2 */,
 				1C62E8DA2C2A206700C1C637 /* Products */,
 			);
@@ -350,7 +352,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"CLIP-Finder2/Preview Content\"";
 				DEVELOPMENT_TEAM = 4N8Y4W9QWP;
 				ENABLE_PREVIEWS = YES;
@@ -383,7 +385,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"CLIP-Finder2/Preview Content\"";
 				DEVELOPMENT_TEAM = 4N8Y4W9QWP;
 				ENABLE_PREVIEWS = YES;

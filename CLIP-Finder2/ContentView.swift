@@ -17,6 +17,8 @@ struct ContentView: View {
     @State private var orientation = UIDeviceOrientation.unknown
     @State private var previousOrientation = UIDeviceOrientation.unknown
     @State private var showingSettings = false
+    @State private var screenSize: CGSize = UIScreen.main.bounds.size
+    @State private var showingSyncMessage = false
     
 
     var body: some View {
@@ -69,7 +71,13 @@ struct ContentView: View {
                                         .foregroundColor(.secondary)
                                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                                 } else {
-                                    PhotoGalleryView(assetsByID: photoGalleryViewModel.assetsByID, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: isPreviewActive ? 4 : 7)
+                                    let galleryWidth = isPreviewActive ? geometry.size.width * 0.6 : geometry.size.width
+                                    PhotoGalleryView(
+                                        assetsByID: photoGalleryViewModel.assetsByID,
+                                        topPhotoIDs: photoGalleryViewModel.topPhotoIDs,
+                                        columns: isPreviewActive ? 4 : 7,
+                                        screenSize: CGSize(width: galleryWidth, height: geometry.size.height)
+                                    )
                                 }
                             }
                         } else {
@@ -83,7 +91,12 @@ struct ContentView: View {
                                     .foregroundColor(.secondary)
                                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                             } else {
-                                PhotoGalleryView(assetsByID: photoGalleryViewModel.assetsByID, topPhotoIDs: photoGalleryViewModel.topPhotoIDs, columns: 4)
+                                PhotoGalleryView(
+                                    assetsByID: photoGalleryViewModel.assetsByID,
+                                    topPhotoIDs: photoGalleryViewModel.topPhotoIDs,
+                                    columns: 4,
+                                    screenSize: geometry.size
+                                )
                             }
                         }
                         
@@ -97,12 +110,32 @@ struct ContentView: View {
                                 .padding()
                             }
                         }
+                        
+                        if showingSyncMessage {
+                            Text("Synchronizing with Photo Gallery...")
+                                .foregroundColor(.blue)
+                                .padding()
+                                .background(Color.gray.opacity(0.2))
+                                .cornerRadius(10)
+                        }
+                        
                     }
                     
                 }
             }
             .navigationTitle("CLIP-Finder")
             .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showingSyncMessage = true
+                        photoGalleryViewModel.syncWithPhotoLibrary()
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                            showingSyncMessage = false
+                        }
+                    }) {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                    }
+                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     FilteredPhotoCountSelector(viewModel: photoGalleryViewModel)
                 }
@@ -192,19 +225,24 @@ struct PhotoGalleryView: View {
     let assetsByID: [String: PHAsset]
     let topPhotoIDs: [String]
     let columns: Int
+    let screenSize: CGSize
 
     var body: some View {
+        let spacing: CGFloat = 1
+        let totalSpacing = CGFloat(columns - 1) * spacing
+        let itemWidth = (screenSize.width - totalSpacing) / CGFloat(columns)
+
         ScrollView {
-            LazyVGrid(columns: Array(repeating: .init(.flexible()), count: columns), spacing: 0.1) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: spacing), count: columns), spacing: spacing) {
                 ForEach(Array(topPhotoIDs.enumerated()), id: \.element) { index, photoID in
                     if let asset = assetsByID[photoID] {
                         PhotoGridItemView(asset: asset,
                                           index: index,
                                           photoIDs: topPhotoIDs,
-                                          assetsByID: assetsByID)
+                                          assetsByID: assetsByID,
+                                          itemSize: itemWidth)
                     }
                 }
-                .padding(0)
             }
         }
     }
@@ -215,6 +253,7 @@ struct PhotoGridItemView: View {
     let index: Int
     let photoIDs: [String]
     let assetsByID: [String: PHAsset]
+    let itemSize: CGFloat
     @State private var thumbnailImage: UIImage?
 
     var body: some View {
@@ -223,11 +262,11 @@ struct PhotoGridItemView: View {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
-                    .frame(width: 100, height: 100)
+                    .frame(width: itemSize, height: itemSize)
                     .clipped()
             } else {
                 Color.gray
-                    .frame(width: 100, height: 100)
+                    .frame(width: itemSize, height: itemSize)
                     .onAppear {
                         loadThumbnailImage()
                     }
@@ -239,7 +278,7 @@ struct PhotoGridItemView: View {
         let manager = PHImageManager.default()
         let option = PHImageRequestOptions()
         option.isSynchronous = false
-        manager.requestImage(for: asset, targetSize: CGSize(width: 100, height: 100), contentMode: .aspectFill, options: option) { image, _ in
+        manager.requestImage(for: asset, targetSize: CGSize(width: itemSize, height: itemSize), contentMode: .aspectFill, options: option) { image, _ in
             if let image = image {
                 self.thumbnailImage = image
             }
@@ -253,6 +292,7 @@ struct FullResolutionImageView: View {
     let assetsByID: [String: PHAsset]
     @State private var currentIndex: Int
     @State private var currentImage: UIImage?
+    @State private var currentScale: CGFloat = 1.0
     @Environment(\.presentationMode) var presentationMode
 
     init(photoIDs: [String], initialIndex: Int, assetsByID: [String: PHAsset]) {
@@ -266,11 +306,14 @@ struct FullResolutionImageView: View {
         TabView(selection: $currentIndex) {
             ForEach(photoIDs.indices, id: \.self) { index in
                 if let asset = assetsByID[photoIDs[index]] {
-                    SingleImageView(asset: asset, onImageLoaded: { image in
-                        if index == currentIndex {
-                            currentImage = image
-                        }
-                    })
+                    ZoomableScrollView(
+                        SingleImageView(asset: asset, onImageLoaded: { image in
+                            if index == currentIndex {
+                                currentImage = image
+                            }
+                        }),
+                        currentScale: $currentScale
+                    )
                     .tag(index)
                 }
             }
@@ -280,6 +323,9 @@ struct FullResolutionImageView: View {
         .navigationBarTitleDisplayMode(.inline)
         .navigationBarBackButtonHidden(true)
         .navigationBarItems(leading: backButton, trailing: shareButton)
+        .onChange(of: currentIndex) { _ in
+            currentScale = 1.0
+        }
     }
 
     private var backButton: some View {
@@ -317,15 +363,18 @@ struct SingleImageView: View {
     @State private var isLoading = true
 
     var body: some View {
-        ZStack {
+        GeometryReader { geometry in
             if let image = image {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fit)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
             } else if isLoading {
                 ProgressView()
+                    .frame(width: geometry.size.width, height: geometry.size.height)
             } else {
                 Text("Failed to load image")
+                    .frame(width: geometry.size.width, height: geometry.size.height)
             }
         }
         .onAppear(perform: loadFullResolutionImage)
@@ -382,6 +431,65 @@ struct FilteredPhotoCountSelector: View {
                         .foregroundColor(.secondary)
                 }
             }
+        }
+    }
+}
+
+struct ZoomableScrollView<Content: View>: UIViewRepresentable {
+    private var content: Content
+    @Binding var currentScale: CGFloat
+    
+    init(_ content: Content, currentScale: Binding<CGFloat>) {
+        self.content = content
+        self._currentScale = currentScale
+    }
+    
+    func makeUIView(context: Context) -> UIScrollView {
+        let scrollView = UIScrollView()
+        scrollView.delegate = context.coordinator
+        scrollView.maximumZoomScale = 5.0
+        scrollView.minimumZoomScale = 1.0
+        scrollView.bouncesZoom = true
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.showsVerticalScrollIndicator = false
+        
+        let hostedView = UIHostingController(rootView: content)
+        hostedView.view.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(hostedView.view)
+        
+        NSLayoutConstraint.activate([
+            hostedView.view.leadingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.leadingAnchor),
+            hostedView.view.trailingAnchor.constraint(equalTo: scrollView.contentLayoutGuide.trailingAnchor),
+            hostedView.view.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            hostedView.view.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            hostedView.view.widthAnchor.constraint(equalTo: scrollView.frameLayoutGuide.widthAnchor),
+            hostedView.view.heightAnchor.constraint(equalTo: scrollView.frameLayoutGuide.heightAnchor)
+        ])
+        
+        return scrollView
+    }
+    
+    func updateUIView(_ uiView: UIScrollView, context: Context) {
+        uiView.zoomScale = currentScale
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+    
+    class Coordinator: NSObject, UIScrollViewDelegate {
+        var parent: ZoomableScrollView
+        
+        init(_ parent: ZoomableScrollView) {
+            self.parent = parent
+        }
+        
+        func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+            return scrollView.subviews.first
+        }
+        
+        func scrollViewDidZoom(_ scrollView: UIScrollView) {
+            parent.currentScale = scrollView.zoomScale
         }
     }
 }

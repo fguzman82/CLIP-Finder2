@@ -251,6 +251,18 @@ class PhotoGalleryViewModel: ObservableObject {
             }
         }
     }
+    
+    func syncWithPhotoLibrary() {
+        PHPhotoLibrary.requestAuthorization { [weak self] status in
+            DispatchQueue.main.async {
+                if status == .authorized {
+                    self?.loadData()
+                } else {
+                    print("Photo library access denied.")
+                }
+            }
+        }
+    }
 
     private func updateGalleryStatus() {
         isGalleryEmpty = assets.isEmpty
