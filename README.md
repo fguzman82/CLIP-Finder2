@@ -67,7 +67,7 @@ This project is based on Apple's [MobileCLIP](https://github.com/apple/ml-mobile
 
 This section describes the variations of the Core ML packages available. These packages are designed to provide different levels of performance and accuracy, suitable for a variety of applications. 
 
-The Core ML packages are available at: [MobileCLIP on HuggingFace](https://huggingface.co/fguzman82/MobileCLIP).
+The Core ML packages are available at: 🤗 [MobileCLIP on HuggingFace](https://huggingface.co/fguzman82/MobileCLIP).
    
 ## Core ML Conversion Scripts
 
@@ -95,6 +95,23 @@ This section provides details on the CoreML conversion scripts used for converti
 
 - It is recommended to turn off Low Power Mode for optimal performance, especially to fully utilize the Apple Neural Engine.
 - The app requires permission to access your photo gallery and camera.
+- 
+## Batch Processing
+
+<div align="center">
+<img width="900" src="https://github.com/user-attachments/assets/7aea4ffd-411e-4cd6-85eb-786528d7a308">
+</div>
+
+CLIP-Finder implements efficient batch processing to handle large photo galleries:
+
+- On app launch, the entire photo gallery is preprocessed using the **Neural Engine** with a batch size of 512 photos. This approach significantly speeds up the initial processing time.
+
+- When new photos are added to the device's gallery, CLIP-Finder detects and processes only the new images upon the next app launch. This incremental processing ensures that the app stays up-to-date with the latest additions to your photo library without redundant calculations.
+
+- Similarly, if photos are deleted from the device, CLIP-Finder updates its database accordingly during the next app launch. This cleanup process maintains the accuracy of the search results and optimizes storage usage.
+
+Refer to this Blog for more details: 🤗 [Hugging Face Blog](https://huggingface.co/blog/fguzman82/coreml-async-batch-prediction)
+
 
 ## Settings
 
