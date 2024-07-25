@@ -35,6 +35,12 @@ This project is based on Apple's [MobileCLIP](https://github.com/apple/ml-mobile
 - Cache management for optimized performance
 - Tokenizer: Implementation in Swift based on the Tokenizer written in Python from [open_clip](https://github.com/mlfoundations/open_clip/blob/main/src/open_clip/tokenizer.py)
 
+## Release
+## <img src="https://developer.apple.com/assets/elements/icons/testflight/testflight-64x64_2x.png" width="40" height="40"> Try It Out
+To experience these new features firsthand, join the TestFlight program:
+
+[**TestFlight Link**](https://testflight.apple.com/join/eZ43s4s6)
+
 ## Components
 
 1. **AI Models**: 
